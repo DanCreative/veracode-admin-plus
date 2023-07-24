@@ -1,0 +1,4 @@
+github.com/DanCreative/veracode-hmac-go v0.0.0-20230511152627-b3c94db3f014 h1:PfvGVIhdsKt36C8/2MaZvYObqOe3UN6GL0+4ny18vAw=
+github.com/DanCreative/veracode-hmac-go v0.0.0-20230511152627-b3c94db3f014/go.mod h1:dMGKQOAcjafKOZqLMAPTB5qqPVp8oP2+fb6Hf9co7bg=
+github.com/go-chi/chi/v5 v5.0.10 h1:rLz5avzKpjqxrYwXNfmjkrYYXOyLJd37pz53UFHC6vk=
+github.com/go-chi/chi/v5 v5.0.10/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=

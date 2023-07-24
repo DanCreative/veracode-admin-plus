@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veracode Admin Plus</title>
+    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+</head>
+<body>
+    <div hx-include="#permissions" hx-target="#tbody">
+        <button class="btn" hx-put="/update">Update</button>
+        <button class="btn" hx-put="/cancel">Cancel</button>
+    </div>
+    <form id="permissions">
+        <table border="1" style="border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Reviewer</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                <tr>
+                    <td>Example.User@Example.com</td>
+                    <td><select name="reviewer" id="reviewer" hx><option value="0">❌</option><option value="1">✔️</option></select></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</body>
+</html>

@@ -5,6 +5,7 @@ type Role struct {
 	RoleName        string `json:"role_name"`
 	RoleDescription string `json:"role_description"`
 	IsApi           bool   `json:"is_api"`
+	IsScanType      bool   `json:"is_scan_type"`
 	IsChecked       bool   `json:"-"`
 	IsDisabled      bool   `json:"-"`
 }

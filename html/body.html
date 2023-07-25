@@ -3,8 +3,18 @@
         <tr>
             <td>{{ .UserName }}</td>
             {{ range .Roles}}
-            <td><input type="checkbox" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                {{ if not .IsScanType}}
+                <td><input type="checkbox" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                {{ end }}
             {{ end }}
+            <td>
+                {{ range .Roles}}
+                {{ if .IsScanType}}
+                <label for="{{ .RoleName }}">{{ .RoleDescription }}</label>
+                <input type="checkbox" id="{{ .RoleName }}"><br>
+                {{ end }}
+                {{ end }}
+            </td>
         </tr>
     {{ end }}
 </tbody>

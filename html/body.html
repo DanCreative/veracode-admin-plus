@@ -3,7 +3,7 @@
         <tr>
             <td>{{ .UserName }}</td>
             {{ range .Roles}}
-            <td><input type="checkbox" id="{{ .RoleId }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+            <td><input type="checkbox" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
             {{ end }}
         </tr>
     {{ end }}

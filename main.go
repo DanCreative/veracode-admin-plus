@@ -96,7 +96,7 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 			UserName: "Dynamo@example.com",
 			UserId:   "Blah",
 			Roles: []Role{
-				{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356"},
+				{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356", RoleName: "extadmin"},
 			},
 		},
 	}
@@ -112,7 +112,7 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 
 func GetRoles() error {
 	// TODO: Update to make API call
-	out, err := os.ReadFile("C:\\Users\\danie\\go\\src\\github.com\\DanCreative\\veracode-admin-plus\\api_responses\\roles.json")
+	out, err := os.ReadFile(os.Getenv("API_RESPONSE_ROLES"))
 	if err != nil {
 		return err
 	}

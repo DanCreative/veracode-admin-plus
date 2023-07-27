@@ -8,6 +8,7 @@ type Role struct {
 	IsScanType      bool   `json:"is_scan_type"`
 	IsChecked       bool   `json:"-"`
 	IsDisabled      bool   `json:"-"`
+	IsAddScanTypes  bool   `json:"-"`
 }
 
 type User struct {

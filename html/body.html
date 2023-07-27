@@ -4,14 +4,18 @@
             <td>{{ .UserName }}</td>
             {{ range .Roles}}
                 {{ if not .IsScanType}}
-                <td><input type="checkbox" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                    {{ if .IsAddScanTypes }}
+                        <td><input type="checkbox" id="{{ .RoleName }}" script="on click if me.checked increment $x else decrement $x end then send foo to .scan-type" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                    {{ else }}
+                        <td><input type="checkbox" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                    {{ end }}
                 {{ end }}
             {{ end }}
             <td>
                 {{ range .Roles}}
                 {{ if .IsScanType}}
                 <label for="{{ .RoleName }}">{{ .RoleDescription }}</label>
-                <input type="checkbox" id="{{ .RoleName }}"><br>
+                <input type="checkbox" id="{{ .RoleName }}" script="on foo if $x is 0 add @disabled else remove @disabled end" class= "scan-type {{ if ne .RoleName "extsubmitanyscan"}}not-any-scan{{ end }}"><br>
                 {{ end }}
                 {{ end }}
             </td>

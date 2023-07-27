@@ -1,6 +1,7 @@
 package main
 
-func ValidateRoles(user *User) {
+// AddMissingRoles adds roles for rendering purposes.
+func RenderValidation(user *User) {
 	// Add missing roles
 	newRoles := make([]Role, len(Roles))
 outer:

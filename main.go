@@ -19,6 +19,7 @@ import (
 var Page *template.Template
 var TableBody *template.Template
 var Roles []Role
+var Client *veracode.Client
 
 // var Roles []Role = []Role{
 // 	{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356", RoleDescription: "Administrator", RoleName: "extadmin"},
@@ -60,12 +61,11 @@ func main() {
 	transport, err := veracode.NewAuthTransport(nil)
 	check(err)
 
-	client, err := veracode.NewClient("https://ui.analysiscenter.veracode.eu/api/authn/v2/", transport.Client())
+	Client, err = veracode.NewClient("https://ui.analysiscenter.veracode.eu/api/authn/v2/", transport.Client())
 	check(err)
 
-	fmt.Print(client)
+	fmt.Print(Client)
 
-	return
 	err = GetRoles()
 	check(err)
 
@@ -122,7 +122,7 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, user := range users {
-		ValidateRoles(user)
+		RenderValidation(user)
 	}
 
 	time.Sleep(2 * time.Second)
@@ -156,7 +156,7 @@ func GetRoles() error {
 }
 
 func GetUsers(size int, page int) ([]User, error) {
-
+	// TODO: Make API calls
 	return nil, nil
 }
 

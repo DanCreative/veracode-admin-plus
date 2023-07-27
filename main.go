@@ -7,9 +7,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
+	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
 	"github.com/go-chi/chi/v5"
+	"github.com/sirupsen/logrus"
 )
 
 var Page *template.Template
@@ -51,12 +55,28 @@ func main() {
 		}
 	}
 
-	err := GetRoles()
+	logrus.SetLevel(logrus.DebugLevel)
+
+	transport, err := veracode.NewAuthTransport(nil)
+	check(err)
+
+	client, err := veracode.NewClient("https://ui.analysiscenter.veracode.eu/api/authn/v2/", transport.Client())
+	check(err)
+
+	fmt.Print(client)
+
+	return
+	err = GetRoles()
 	check(err)
 
 	router := chi.NewRouter()
 
 	router.Get("/", IndexHandler)
+
+	workDir, _ := os.Getwd()
+	filesDir := http.Dir(filepath.Join(workDir, "assets"))
+	FileServer(router, "/assets", filesDir)
+
 	router.Put("/update", UpdateHandler)
 
 	router.Route("/users", func(r chi.Router) {
@@ -133,4 +153,30 @@ func GetRoles() error {
 		}
 	}
 	return nil
+}
+
+func GetUsers(size int, page int) ([]User, error) {
+
+	return nil, nil
+}
+
+// FileServer conveniently sets up a http.FileServer handler to serve
+// static files from a http.FileSystem.
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
+	}
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
 }

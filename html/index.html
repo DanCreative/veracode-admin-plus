@@ -6,92 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veracode Admin Plus</title>
     <script src="https://unpkg.com/htmx.org@1.9.3"></script>
-    <style>
-        .loader {
-            border: 8px solid #f3f3f3;
-            /* Light grey */
-            border-top: 8px solid #3498db;
-            /* Blue */
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        table {
-            margin-top: 100px;
-            border-collapse: collapse;
-            --table-border-width: 1px;
-        }
-        th.rotate {
-            white-space: nowrap;
-            position: relative;
-        }
-        th.rotate > div {
-            /* place div at bottom left of the th parent */
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            /* Make sure short labels still meet the corner of the parent otherwise you'll get a gap */
-            text-align: left;
-            /* Move the top left corner of the span's bottom-border to line up with the top left corner of the td's border-right border so that the border corners are matched
-            * Rotate 315 (-45) degrees about matched border corners */
-            transform: 
-                translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width))
-                rotate(315deg);
-            transform-origin: 0% calc(100% - var(--table-border-width));
-            width: 100%;
-        }
-        th.rotate > div > span {
-            /* make sure the bottom of the span is matched up with the bottom of the parent div */
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            border-bottom: var(--table-border-width) solid gray;
-        }
-        tr {
-            border-bottom: var(--table-border-width) solid gray;
-        }
-        td {
-            border-right: var(--table-border-width) solid gray;
-            border-left: var(--table-border-width) solid gray;
-            /* make sure this is at least as wide as sqrt(2) * height of the tallest letter in your font or the headers will overlap each other*/
-            min-width: 30px;
-            padding-top: 2px;
-            padding-left: 5px;
-            text-align: right;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/index.css">
 </head>
 
 <body>
-    <div hx-include="#permissions" hx-target="#tbody">
-        <button class="btn" hx-put="/update">Update</button>
-        <button class="btn" hx-put="/cancel">Cancel</button>
+    <div class="ag-grid">
+        <div class="grid-title-filter" id="users-title-filter-block">
+            <table>
+                <thead hx-get="/users" hx-swap="afterend" hx-trigger="load" hx-indicator="#load-body">
+                    <tr>
+                        <th>Username</th>
+                        {{ range . }}
+                            {{ if not .IsScanType}}
+                                <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>
+                            {{ end }}
+                        {{ end }}
+                        <th>Scan Type</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
-    <table>
-        <thead hx-get="/users" hx-swap="afterend" hx-trigger="load" hx-indicator="#load-body">
-            <tr>
-                <th>Username</th>
-                {{ range . }}
-                    {{ if not .IsScanType}}
-                        <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>
-                    {{ end }}
-                {{ end }}
-                <th>Scan Type</th>
-            </tr>
-        </thead>
-    </table>
+
     <div id="load-body" class="htmx-indicator loader"></div>
 </body>
 

@@ -1,0 +1,110 @@
+div {
+    display: block;
+}
+
+.ag-grid {
+    width: 60%;
+    padding: 0;
+    margin: 0;
+    height: inherit;
+    max-height: inherit;
+}
+
+.ag-grid .grid-title-filter, .ag-grid .grid-title-filter-empty {
+    padding: 10px 0 10px 10px;
+    margin: 0;
+    border: 1px solid #ddd;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    place-content: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.loader {
+    border: 8px solid #f3f3f3;
+    /* Light grey */
+    border-top: 8px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+table {
+    margin-top: 100px;
+    border-collapse: collapse;
+    --table-border-width: 1px;
+}
+th.rotate {
+    white-space: nowrap;
+    position: relative;
+}
+th.rotate > div {
+    /* place div at bottom left of the th parent */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* Make sure short labels still meet the corner of the parent otherwise you'll get a gap */
+    text-align: left;
+    /* Move the top left corner of the span's bottom-border to line up with the top left corner of the td's border-right border so that the border corners are matched
+    * Rotate 315 (-45) degrees about matched border corners */
+    transform: 
+        translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width))
+        rotate(315deg);
+    transform-origin: 0% calc(100% - var(--table-border-width));
+    width: 100%;
+}
+th.rotate > div > span {
+    /* make sure the bottom of the span is matched up with the bottom of the parent div */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-bottom: var(--table-border-width) solid gray;
+}
+tr {
+    border-bottom: var(--table-border-width) solid gray;
+}
+td {
+    border-right: var(--table-border-width) solid gray;
+    border-left: var(--table-border-width) solid gray;
+    /* make sure this is at least as wide as sqrt(2) * height of the tallest letter in your font or the headers will overlap each other*/
+    min-width: 30px;
+    padding-top: 2px;
+    padding-left: 5px;
+    text-align: right;
+}

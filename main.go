@@ -12,13 +12,14 @@ import (
 	"time"
 
 	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
+	"github.com/DanCreative/veracode-admin-plus/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
 var Page *template.Template
 var TableBody *template.Template
-var Roles []Role
+var Roles []models.Role
 var Client *veracode.Client
 
 // var Roles []Role = []Role{
@@ -61,10 +62,8 @@ func main() {
 	transport, err := veracode.NewAuthTransport(nil)
 	check(err)
 
-	Client, err = veracode.NewClient("https://ui.analysiscenter.veracode.eu/api/authn/v2/", transport.Client())
+	Client, err = veracode.NewClient("https://api.veracode.eu/api/authn/v2", transport.Client())
 	check(err)
-
-	fmt.Print(Client)
 
 	err = GetRoles()
 	check(err)
@@ -111,25 +110,9 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTableBody(w http.ResponseWriter, r *http.Request) {
-	users := []*User{
-		{
-			UserName: "Dynamo@example.com",
-			UserId:   "Blah",
-			Roles: []Role{
-				{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356", RoleName: "extadmin"},
-				{RoleId: "7f3c7c89-c535-489f-80a7-804793e5d7e9", RoleDescription: "Creator", RoleName: "extcreator", IsAddScanTypes: true},
-				{RoleId: "1f59f767-33cd-4824-b616-ad10c4f985e3", RoleDescription: "Security Lead", RoleName: "extseclead", IsAddScanTypes: true},
-				{RoleId: "b023ec58-c6b1-43c3-ab00-88d68118d3c0", RoleDescription: "Submitter", RoleName: "extsubmitter", IsAddScanTypes: true},
-			},
-		},
-		{
-			UserName: "Caesar@example.com",
-			UserId:   "Blah1",
-			Roles: []Role{
-				{RoleId: "7f3c7c89-c535-489f-80a7-804793e5d7e9", RoleDescription: "Creator", RoleName: "extcreator", IsAddScanTypes: true},
-				{RoleId: "ac32cd4e-9b36-44f9-87f4-9cadce3d7c91", RoleDescription: "Policy Administrator", RoleName: "extpolicyadmin"},
-			},
-		},
+	users, err := Client.GetAggregatedUsers(1, 20)
+	if err != nil {
+		http.Error(w, "OOPS", 500)
 	}
 
 	for _, user := range users {
@@ -149,7 +132,7 @@ func GetRoles() error {
 	}
 	data := struct {
 		Embedded struct {
-			Roles []Role `json:"roles"`
+			Roles []models.Role `json:"roles"`
 		} `json:"_embedded"`
 	}{}
 
@@ -164,11 +147,6 @@ func GetRoles() error {
 		}
 	}
 	return nil
-}
-
-func GetUsers(size int, page int) ([]User, error) {
-	// TODO: Make API calls
-	return nil, nil
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

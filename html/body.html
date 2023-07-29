@@ -1,7 +1,7 @@
 <tbody id="tbody">  
     {{ range $i, $user := . }}
         <tr>
-            <td>{{ $user.UserName }}</td>
+            <td>{{ $user.EmailAddress }}</td>
             {{ range $user.Roles}}
                 {{ if not .IsScanType}}
                     {{ if .IsAddScanTypes }}

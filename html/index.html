@@ -16,7 +16,7 @@
             <table>
                 <thead hx-get="/users" hx-swap="afterend" hx-trigger="load" hx-indicator="#load-body">
                     <tr>
-                        <th>Username</th>
+                        <th>Email</th>
                         {{ range . }}
                             {{ if not .IsScanType}}
                                 <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>

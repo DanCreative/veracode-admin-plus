@@ -11,23 +11,20 @@
 </head>
 
 <body>
-    <div class="ag-grid">
-        <div class="grid-title-filter" id="users-title-filter-block">
-            <table>
-                <thead hx-get="/users" hx-swap="afterend" hx-trigger="load" hx-indicator="#load-body">
-                    <tr>
-                        <th>Email</th>
-                        {{ range . }}
-                            {{ if not .IsScanType}}
-                                <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>
-                            {{ end }}
-                        {{ end }}
-                        <th>Scan Type</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
+    <table>
+        <thead hx-get="/users" hx-swap="afterend" hx-trigger="load" hx-indicator="#load-body">
+            <tr>
+                <th>Email</th>
+                <th>User Type</th>
+                {{ range . }}
+                    {{ if not .IsScanType}}
+                        <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>
+                    {{ end }}
+                {{ end }}
+                <th>Scan Type</th>
+            </tr>
+        </thead>
+    </table>
 
     <div id="load-body" class="htmx-indicator loader"></div>
 </body>

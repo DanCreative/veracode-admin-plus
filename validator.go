@@ -1,10 +1,12 @@
 package main
 
+import "github.com/DanCreative/veracode-admin-plus/models"
+
 // RenderValidation adds roles for rendering purposes.
-func RenderValidation(user *User) {
+func RenderValidation(user *models.User) {
 	var isAdmin bool
 	// Add missing roles
-	newRoles := make([]Role, len(Roles))
+	newRoles := make([]models.Role, len(Roles))
 outer:
 	for i, systemRole := range Roles {
 		for _, userRole := range user.Roles {

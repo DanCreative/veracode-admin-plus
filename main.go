@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
 	"github.com/DanCreative/veracode-admin-plus/models"
@@ -65,7 +63,7 @@ func main() {
 	Client, err = veracode.NewClient("https://api.veracode.eu/api/authn/v2", transport.Client())
 	check(err)
 
-	err = GetRoles()
+	Roles, err = Client.GetRoles()
 	check(err)
 
 	router := chi.NewRouter()
@@ -110,7 +108,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTableBody(w http.ResponseWriter, r *http.Request) {
-	users, err := Client.GetAggregatedUsers(1, 20)
+	users, err := Client.GetAggregatedUsers(1, 20, "user")
 	if err != nil {
 		http.Error(w, "OOPS", 500)
 	}
@@ -119,34 +117,7 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 		RenderValidation(user)
 	}
 
-	time.Sleep(2 * time.Second)
-
 	TableBody.Execute(w, users)
-}
-
-func GetRoles() error {
-	// TODO: Update to make API call
-	out, err := os.ReadFile(os.Getenv("API_RESPONSE_ROLES"))
-	if err != nil {
-		return err
-	}
-	data := struct {
-		Embedded struct {
-			Roles []models.Role `json:"roles"`
-		} `json:"_embedded"`
-	}{}
-
-	err = json.Unmarshal(out, &data)
-	if err != nil {
-		return err
-	}
-
-	for _, role := range data.Embedded.Roles {
-		if !role.IsApi {
-			Roles = append(Roles, role)
-		}
-	}
-	return nil
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

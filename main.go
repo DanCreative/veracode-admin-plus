@@ -40,7 +40,7 @@ var Client *veracode.Client
 // 	{RoleId: "10ef2fe7-406e-4209-b0ce-e9deed7bf515", RoleDescription: "Team Admin", RoleName: "teamAdmin"}, // Not available for users with Admin role
 // 	{RoleId: "a9cdb1a1-d6ae-4a50-b8da-c8bd12b3ffaf", RoleDescription: "Workspace Admin", RoleName: "workSpaceAdmin"},
 // 	{RoleId: "189ea7d7-0628-45b8-9c68-2289f825d94b", RoleDescription: "Workspace Editor", RoleName: "workSpaceEditor"},
-// 	// Scan Types are added by: Creator, Security Lead and Submitter
+// // Scan Types are added by: Creator, Security Lead and Submitter
 // 	{RoleId: "9824a914-3e92-4bca-806d-3d09f4c3ae75", RoleDescription: "Any Scan", RoleName: "extsubmitanyscan"},
 // 	{RoleId: "c3095944-bb62-4b91-8478-1b217ecea893", RoleDescription: "Dynamic Analysis", RoleName: "extsubmitdynamicanalysis"},
 // 	{RoleId: "1bb63544-1885-41d3-9b29-18a841a54275", RoleDescription: "Static Scan", RoleName: "extsubmitstaticscan"},
@@ -117,6 +117,17 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 			UserId:   "Blah",
 			Roles: []Role{
 				{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356", RoleName: "extadmin"},
+				{RoleId: "7f3c7c89-c535-489f-80a7-804793e5d7e9", RoleDescription: "Creator", RoleName: "extcreator", IsAddScanTypes: true},
+				{RoleId: "1f59f767-33cd-4824-b616-ad10c4f985e3", RoleDescription: "Security Lead", RoleName: "extseclead", IsAddScanTypes: true},
+				{RoleId: "b023ec58-c6b1-43c3-ab00-88d68118d3c0", RoleDescription: "Submitter", RoleName: "extsubmitter", IsAddScanTypes: true},
+			},
+		},
+		{
+			UserName: "Caesar@example.com",
+			UserId:   "Blah1",
+			Roles: []Role{
+				{RoleId: "7f3c7c89-c535-489f-80a7-804793e5d7e9", RoleDescription: "Creator", RoleName: "extcreator", IsAddScanTypes: true},
+				{RoleId: "ac32cd4e-9b36-44f9-87f4-9cadce3d7c91", RoleDescription: "Policy Administrator", RoleName: "extpolicyadmin"},
 			},
 		},
 	}

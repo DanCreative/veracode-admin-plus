@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
@@ -108,7 +109,16 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTableBody(w http.ResponseWriter, r *http.Request) {
-	users, err := Client.GetAggregatedUsers(1, 20, "user")
+	r.ParseForm()
+	size, err := strconv.Atoi(r.Form.Get("size"))
+	if err != nil {
+		size = 10
+	}
+	page, err := strconv.Atoi(r.Form.Get("page"))
+	if err != nil {
+		page = 1
+	}
+	users, err := Client.GetAggregatedUsers(page, size, "user")
 	if err != nil {
 		http.Error(w, "OOPS", 500)
 	}

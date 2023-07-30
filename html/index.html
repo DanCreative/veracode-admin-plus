@@ -15,8 +15,8 @@
         <table>
             <thead hx-get="/users" hx-swap="outerHTML" hx-target="#body" hx-trigger="load" hx-indicator="#load-body">
                 <tr>
-                    <th>Email</th>
-                    <th>User Type</th>
+                    <th class="details">Email</th>
+                    <th class="details">User Type</th>
                     {{ range . }}
                         {{ if not .IsScanType}}
                             <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>

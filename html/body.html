@@ -1,4 +1,4 @@
-<tbody id="tbody">  
+<tbody id="body">  
     {{ range $i, $user := . }}
         <tr>
             <td>{{ $user.EmailAddress }}</td>
@@ -13,16 +13,19 @@
                 {{ end }}
             {{ end }}
             <td>
-                {{ range .Roles}}
-                    {{ if .IsScanType}}
-                        <label for="{{ .RoleName }}">{{ .RoleDescription }}</label>
-                        {{ if ne .RoleName "extsubmitanyscan"}}
-                            <input type="checkbox" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled end on click send ${{ $i }}nany to .any-scan end on ${{ $i }}any set me.checked to false end" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "scan-type not-any-scan"><br>
-                        {{ else }}
-                            <input type="checkbox" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled then set me.checked to true end on ${{ $i }}nany set me.checked to false end on click send ${{ $i }}any to .not-any-scan" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "scan-type any-scan"><br>
+                <button script="on click toggle .hide-scan-types-box on the next <div/>">show</button>
+                <div class="hide-scan-types-box scan-types-box">
+                    {{ range .Roles}}
+                        {{ if .IsScanType}}
+                            <label for="{{ .RoleName }}">{{ .RoleDescription }}</label>
+                            {{ if ne .RoleName "extsubmitanyscan"}}
+                                <input type="checkbox" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled end on click send ${{ $i }}nany to .any-scan end on ${{ $i }}any set me.checked to false end" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "scan-type not-any-scan"><br>
+                            {{ else }}
+                                <input type="checkbox" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled then set me.checked to true end on ${{ $i }}nany set me.checked to false end on click send ${{ $i }}any to .not-any-scan" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "scan-type any-scan"><br>
+                            {{ end }}
                         {{ end }}
                     {{ end }}
-                {{ end }}
+                </div>
             </td>
         </tr>
     {{ end }}

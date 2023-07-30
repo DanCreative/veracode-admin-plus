@@ -67,6 +67,8 @@ func main() {
 	Roles, err = Client.GetRoles()
 	check(err)
 
+	cart := Cart{}
+
 	router := chi.NewRouter()
 
 	router.Get("/", IndexHandler)
@@ -79,6 +81,10 @@ func main() {
 
 	router.Route("/users", func(r chi.Router) {
 		r.Get("/", GetTableBody)
+
+		r.Route("/{userID}", func(r chi.Router) {
+			r.Put("/", cart.PutUser)
+		})
 	})
 
 	page, err := os.ReadFile("html/index.html")

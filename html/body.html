@@ -6,9 +6,9 @@
             {{ range $user.Roles}}
                 {{ if not .IsScanType}}
                     {{ if .IsAddScanTypes }}
-                        <td><input type="checkbox" id="{{ .RoleName }}" script="init if me.checked increment ${{ $i }} end on click if me.checked increment ${{ $i }} then else decrement ${{ $i }} end then send ${{ $i }}roles to .scan-type" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                        <td><input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" script="init if me.checked increment ${{ $i }} end on click if me.checked increment ${{ $i }} then else decrement ${{ $i }} end then send ${{ $i }}roles to .scan-type" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"></td>
                     {{ else }}
-                        <td><input type="checkbox" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }}></td>
+                        <td><input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"></td>
                     {{ end }}
                 {{ end }}
             {{ end }}
@@ -19,9 +19,9 @@
                         {{ if .IsScanType}}
                             <label for="{{ .RoleName }}">{{ .RoleDescription }}</label>
                             {{ if ne .RoleName "extsubmitanyscan"}}
-                                <input type="checkbox" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled end on click send ${{ $i }}nany to .any-scan end on ${{ $i }}any set me.checked to false end" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "scan-type not-any-scan"><br>
+                                <input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled end on click send ${{ $i }}nany to .any-scan end on ${{ $i }}any set me.checked to false end" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan"><br>
                             {{ else }}
-                                <input type="checkbox" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled then set me.checked to true end on ${{ $i }}nany set me.checked to false end on click send ${{ $i }}any to .not-any-scan" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "scan-type any-scan"><br>
+                                <input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled then set me.checked to false else remove @disabled then set me.checked to true end on ${{ $i }}nany set me.checked to false end on click send ${{ $i }}any to .not-any-scan" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan"><br>
                             {{ end }}
                         {{ end }}
                     {{ end }}

@@ -3,6 +3,13 @@
         <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }}">
             <td class="details">{{ $user.EmailAddress }}</td>
             <td class="details">{{ $user.AccountType }}</td>
+            <td class="details">
+                <select multiple name="teams" class="teams-select">
+                    {{ range $user.Teams}}
+                        <option value="{{.TeamId}}" selected>{{.TeamName}}</option>
+                    {{ end }}
+                </select>
+            </td>
             {{ range $user.Roles}}
                 {{ if not .IsScanType}}
                     {{ if .IsAddScanTypes }}

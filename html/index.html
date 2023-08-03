@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veracode Admin Plus</title>
+    <link rel="stylesheet" href="/assets/chosen.min.css">
+    <link rel="stylesheet" href="/assets/index.css">
+
     <script src="https://unpkg.com/htmx.org@1.9.3"></script>
     <script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
-    <link rel="stylesheet" href="/assets/index.css">
+    <script src="/assets/jquery-3.7.0.min.js"></script>
+    <script src="/assets/chosen.jquery.min.js"></script>
 </head>
 
 <body>
@@ -55,6 +59,11 @@
         </div>
         <div id="load-body" class="htmx-indicator loader"></div>
     </div>
+    <script>
+        htmx.on("htmx:afterOnLoad", function(evt) {
+            $(".teams-select").chosen({width: "200px", no_results_text: "No teams found...",placeholder_text_multiple:"Select teams..." });
+        });
+    </script>
 </body>
 
 </html>

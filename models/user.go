@@ -17,5 +17,12 @@ type User struct {
 	UserName            string `json:"user_name"`
 	AccountType         string `json:"account_type"`
 	EmailAddress        string `json:"email_address"`
+	Teams               []Team `json:"teams"`
 	CountScanTypeAdders int    `json:"-"`
+}
+
+type Team struct {
+	TeamId       string `json:"team_id,omitempty"`
+	TeamLegacyId int    `json:"team_legacy_id,omitempty"`
+	TeamName     string `json:"team_name,omitempty"`
 }

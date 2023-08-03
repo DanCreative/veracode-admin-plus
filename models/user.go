@@ -12,9 +12,10 @@ type Role struct {
 }
 
 type User struct {
-	Roles        []Role `json:"roles"`
-	UserId       string `json:"user_id"`
-	UserName     string `json:"user_name"`
-	AccountType  string `json:"account_type"`
-	EmailAddress string `json:"email_address"`
+	Roles               []Role `json:"roles"`
+	UserId              string `json:"user_id"`
+	UserName            string `json:"user_name"`
+	AccountType         string `json:"account_type"`
+	EmailAddress        string `json:"email_address"`
+	CountScanTypeAdders int    `json:"-"`
 }

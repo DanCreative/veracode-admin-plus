@@ -8,7 +8,7 @@ import (
 // RenderValidation adds roles for rendering purposes.
 func RenderValidation(user *models.User) {
 	var isAdmin bool
-	var hasScanTypes bool
+	hasScanTypes := 0
 
 	// Add missing roles
 	newRoles := make([]models.Role, len(Roles))
@@ -26,7 +26,7 @@ outer:
 
 				// If Creator, Security Lead and Submitter, add scan types
 				if veracode.AddScanTypesRoles[userRole.RoleName] {
-					hasScanTypes = true
+					hasScanTypes += 1
 				}
 
 				newRoles[i] = systemRole
@@ -40,17 +40,18 @@ outer:
 		newRoles[i] = systemRole
 	}
 
-	if isAdmin || !hasScanTypes {
+	if isAdmin || hasScanTypes < 1 {
 		// If Admin disable Team Admin
 		for i := range newRoles {
 			if newRoles[i].RoleName == "teamAdmin" && isAdmin {
 				newRoles[i].IsDisabled = true
 			}
-			if newRoles[i].IsScanType && !hasScanTypes {
+			if newRoles[i].IsScanType && hasScanTypes < 1 {
 				newRoles[i].IsDisabled = true
 			}
 		}
 	}
 
 	user.Roles = newRoles
+	user.CountScanTypeAdders = hasScanTypes
 }

@@ -1,19 +1,19 @@
 <tbody id="body">  
     {{ range $i, $user := . }}
-        <tr>
+        <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }}">
             <td class="details">{{ $user.EmailAddress }}</td>
             <td class="details">{{ $user.AccountType }}</td>
             {{ range $user.Roles}}
                 {{ if not .IsScanType}}
                     {{ if .IsAddScanTypes }}
-                        <td><input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" script="init if me.checked increment ${{ $i }} end on click if me.checked increment ${{ $i }} then else decrement ${{ $i }} end then send ${{ $i }}roles to .scan-type" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"></td>
+                        <td><input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" script="on click if me.checked increment ${{ $i }} then else decrement ${{ $i }} end then send ${{ $i }}roles to .scan-type" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"></td>
                     {{ else }}
                         <td><input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"></td>
                     {{ end }}
                 {{ end }}
             {{ end }}
             <td>
-                <button script="on click toggle .hide-scan-types-box on the next <div/>">show</button>
+                <button script="on click toggle .hide-scan-types-box on the next <div/> end on ${{ $i }}roles if ${{ $i }} is 0 add @disabled else remove @disabled end" class="scan-type" {{ if eq $user.CountScanTypeAdders 0}}disabled{{ end }}>show</button>
                 <div class="hide-scan-types-box scan-types-box">
                     {{ range .Roles}}
                         {{ if .IsScanType}}

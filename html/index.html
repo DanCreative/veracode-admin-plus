@@ -21,6 +21,7 @@
                 <tr>
                     <th class="details">Email</th>
                     <th class="details">User Type</th>
+                    <th class="details">Team(s)</th>
                     {{ range . }}
                         {{ if not .IsScanType}}
                             <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>

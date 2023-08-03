@@ -4,7 +4,7 @@
             <td class="details">{{ $user.EmailAddress }}</td>
             <td class="details">{{ $user.AccountType }}</td>
             <td class="details">
-                <select multiple name="teams" class="teams-select">
+                <select multiple name="teams" class="teams-select roles-{{ $user.UserId }}">
                     {{ range $user.Teams}}
                         <option value="{{.TeamId}}" selected>{{.TeamName}}</option>
                     {{ end }}

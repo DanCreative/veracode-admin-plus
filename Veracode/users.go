@@ -47,7 +47,6 @@ func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*mod
 
 	for user := range ch {
 		aggregatedUsers[userOrder[user.UserId]] = user
-		//aggregatedUsers = append(aggregatedUsers, user)
 	}
 
 	return aggregatedUsers, nil

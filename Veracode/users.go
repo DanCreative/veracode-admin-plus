@@ -18,7 +18,13 @@ func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*mod
 		return nil, err
 	}
 
-	var aggregatedUsers []*models.User
+	userOrder := make(map[string]int, len(summaryUsers))
+	aggregatedUsers := make([]*models.User, len(summaryUsers))
+
+	for k, v := range summaryUsers {
+		userOrder[v.UserId] = k
+	}
+
 	var wg sync.WaitGroup
 	ch := make(chan *models.User)
 
@@ -40,7 +46,8 @@ func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*mod
 	}()
 
 	for user := range ch {
-		aggregatedUsers = append(aggregatedUsers, user)
+		aggregatedUsers[userOrder[user.UserId]] = user
+		//aggregatedUsers = append(aggregatedUsers, user)
 	}
 
 	return aggregatedUsers, nil

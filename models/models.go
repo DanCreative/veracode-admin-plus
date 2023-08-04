@@ -26,3 +26,10 @@ type Team struct {
 	TeamLegacyId int    `json:"team_legacy_id,omitempty"`
 	TeamName     string `json:"team_name,omitempty"`
 }
+
+type PageMeta struct {
+	Number        int `json:"number,omitempty"`
+	Size          int `json:"size,omitempty"`
+	TotalElements int `json:"total_elements,omitempty"`
+	TotalPages    int `json:"total_pages,omitempty"`
+}

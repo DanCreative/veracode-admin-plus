@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -77,10 +76,10 @@ func main() {
 	filesDir := http.Dir(filepath.Join(workDir, "assets"))
 	FileServer(router, "/assets", filesDir)
 
-	router.Put("/update", UpdateHandler)
-
 	router.Route("/users", func(r chi.Router) {
 		r.Get("/", GetTableBody)
+
+		r.Get("/meta", GetTableMeta)
 
 		r.Route("/{userID}", func(r chi.Router) {
 			r.Put("/", cart.PutUser)
@@ -100,15 +99,15 @@ func main() {
 	log.Fatal(http.ListenAndServe("localhost:8082", router))
 }
 
-func UpdateHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	for k, v := range r.Form {
-		fmt.Printf("Permission: %s's value is: %s\n", k, v)
-	}
-}
-
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	err := Page.Execute(w, Roles)
+	data := struct {
+		Roles []models.Role
+		Page  models.PageMeta
+	}{
+		Roles: Roles,
+		Page:  models.PageMeta{},
+	}
+	err := Page.Execute(w, data)
 	if err != nil {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 	}
@@ -157,6 +156,11 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 	}
 
 	TableBody.Execute(w, data)
+}
+
+func GetTableMeta(w http.ResponseWriter, r *http.Request) {
+	logrus.Info("Hit table meta")
+	Page.ExecuteTemplate(w, "tableMeta", models.PageMeta{Size: 200})
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

@@ -10,8 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Hardcoded to page 1 size 40 for simplicity for now
-// TODO: Automatic paging
+// ! Hardcoded to page 1 size 40 for simplicity for now
 func (c *Client) GetTeamsAsync(result chan any) {
 	defer close(result)
 	req, err := http.NewRequest("GET", fmt.Sprintf("%steams?page=0&size=40", c.BaseURL), nil)

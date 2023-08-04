@@ -2,9 +2,12 @@ package veracode
 
 import (
 	"encoding/json"
-	"os"
+	"fmt"
+	"io"
+	"net/http"
 
 	"github.com/DanCreative/veracode-admin-plus/models"
+	"github.com/sirupsen/logrus"
 )
 
 var AddScanTypesRoles = map[string]bool{
@@ -13,31 +16,56 @@ var AddScanTypesRoles = map[string]bool{
 	"extsubmitter": true,
 }
 
+// ! Hardcoded to page 1 size 40 for simplicity for now
+// ! Only handling Human users at the moment
 func (c *Client) GetRoles() ([]models.Role, error) {
-	var roles []models.Role
-	// TODO: Update to make API call
-	out, err := os.ReadFile(os.Getenv("API_RESPONSE_ROLES"))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%sroles?page=0&size=40", c.BaseURL), nil)
 	if err != nil {
+		logrus.Error(err)
 		return nil, err
 	}
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		err = fmt.Errorf("API error. http code: %v. Response Body: %s", resp.Status, string(body))
+		logrus.Error(err)
+		return nil, err
+	}
+
 	data := struct {
 		Embedded struct {
 			Roles []models.Role `json:"roles"`
 		} `json:"_embedded"`
 	}{}
 
-	err = json.Unmarshal(out, &data)
+	err = json.Unmarshal(body, &data)
 	if err != nil {
+		logrus.Error(err)
 		return nil, err
 	}
 
+	var humanRoles []models.Role
+
+	// Filter out all of the API Roles
 	for _, role := range data.Embedded.Roles {
 		if AddScanTypesRoles[role.RoleName] {
 			role.IsAddScanTypes = true
 		}
 		if !role.IsApi {
-			roles = append(roles, role)
+			humanRoles = append(humanRoles, role)
 		}
 	}
-	return roles, nil
+
+	return humanRoles, err
 }

@@ -62,7 +62,7 @@
     </div>
     <script>
         htmx.on("htmx:afterOnLoad", function(evt) {
-            $(".teams-select").chosen({width: "200px", no_results_text: "No teams found...",placeholder_text_multiple:"Select teams..." });
+            $(".teams-select").chosen({width: "200px", no_results_text: "No teams found...",placeholder_text_multiple:"Select teams...", display_selected_options: false});
         });
     </script>
 </body>

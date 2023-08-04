@@ -115,6 +115,10 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTableBody(w http.ResponseWriter, r *http.Request) {
+	chTeams := make(chan any, 1)
+
+	go Client.GetTeamsAsync(chTeams)
+
 	r.ParseForm()
 	size, err := strconv.Atoi(r.Form.Get("size"))
 	if err != nil {
@@ -133,7 +137,26 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 		RenderValidation(user)
 	}
 
-	TableBody.Execute(w, users)
+	var teams []models.Team
+
+	TeamsResult := <-chTeams
+
+	switch t := TeamsResult.(type) {
+	case error:
+		http.Error(w, "OOPS", 500)
+	case []models.Team:
+		teams = t
+	}
+
+	data := struct {
+		Users []*models.User
+		Teams []models.Team
+	}{
+		Users: users,
+		Teams: teams,
+	}
+
+	TableBody.Execute(w, data)
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

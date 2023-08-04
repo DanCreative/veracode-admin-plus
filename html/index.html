@@ -19,7 +19,7 @@
         <table>
             <thead id="thead" hx-get="/users" hx-swap="innerHTML" hx-target="#body" hx-trigger="load" hx-indicator="#load-body">
                 <tr>
-                    <th class="details">Email</th>
+                    <th class="details email">Email</th>
                     <th class="details">User Type</th>
                     <th class="details">Team(s)</th>
                     {{ range .Roles }}
@@ -48,7 +48,7 @@
             <span>
                 <label for="users-1-row-select">Rows</label>
 
-                <select name="size" class="grid-paging-row-select" id="users-1-row-select" hx-get="/users" hx-trigger="change" hx-target="#body" hx-swap="outerHTML" hx-indicator="#load-body" hx-include="#users-1-page-number">
+                <select name="size" class="grid-paging-row-select" id="users-1-row-select" hx-get="/users" hx-trigger="change" hx-target="#body" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#users-1-page-number">
                     <option value="10" id="users-1-row-select-10"> 10 </option>
                     <option value="25" id="users-1-row-select-25"> 25 </option>
                     <option value="50" id="users-1-row-select-50"> 50 </option>

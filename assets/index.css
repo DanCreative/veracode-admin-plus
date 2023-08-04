@@ -114,3 +114,7 @@ th {
     flex-grow: 3;
     justify-content: center;
 }
+
+.email {
+    min-width: 400px;
+}

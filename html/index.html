@@ -30,19 +30,19 @@
                     <th class="rotate"><div><span>Scan Type</span></div></th>
                 </tr>
             </thead>
-            <tbody id="body"></tbody>
+            <tbody id="body" hx-get="/users/meta" hx-trigger="change" hx-target=".row" hx-swap="innerHTML"></tbody>
         </table>
         <div class="row">
             {{ block "tableMeta" .Page }}
             <div class="grid-paging-rows-x-to-y-of-z">{{ .Number }} - {{ .Size }} of {{ .TotalElements }}</div>
             <span class="grid-paging-summary-panel">
                 <button type="button" class="grid-paging-button" id="users-1-goto-first-page"> ◀◀ </button>
-                <button type="button" class="grid-paging-button" id="users-1-goto-previous-page"> ◀ </button>
+                <button script="on click get the (value of #users-1-page-number) as an Int decrement it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-previous-page"> ◀ </button>
 
-                <input name="page" class="grid-paging-textbox grid-input ng-untouched ng-pristine ng-valid" value="1" id="users-1-page-number" hx-get="/users" hx-trigger="change" hx-target="#body" hx-swap="outerHTML" hx-indicator="#load-body" hx-include="#users-1-row-select">
+                <input name="page" class="grid-paging-textbox grid-input ng-untouched ng-pristine ng-valid" value="1" id="users-1-page-number" hx-get="/users" hx-trigger="change" hx-target="#body" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#users-1-row-select">
                 <span class="grid-paging-pageOfY">of {{ .TotalPages }}</span>
 
-                <button type="button" class="grid-paging-button" id="users-1-goto-next-page"> ▶ </button>
+                <button script="on click get the (value of #users-1-page-number) as an Int increment it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-next-page"> ▶ </button>
                 <button type="button" class="grid-paging-button" id="users-1-goto-last-page"> ▶▶ </button>
             </span>
             <span>

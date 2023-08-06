@@ -16,7 +16,7 @@ import (
 )
 
 var Page *template.Template
-var TableBody *template.Template
+var Table *template.Template
 var Roles []models.Role
 var Client *veracode.Client
 
@@ -77,9 +77,7 @@ func main() {
 	FileServer(router, "/assets", filesDir)
 
 	router.Route("/users", func(r chi.Router) {
-		r.Get("/", GetTableBody)
-
-		r.Get("/meta", GetTableMeta)
+		r.Get("/", GetTable)
 
 		r.Route("/{userID}", func(r chi.Router) {
 			r.Put("/", cart.PutUser)
@@ -88,32 +86,28 @@ func main() {
 
 	page, err := os.ReadFile("html/index.html")
 	check(err)
-	body, err := os.ReadFile("html/body.html")
-	check(err)
 
 	Page, err = template.New("webpage").Parse(string(page))
 	check(err)
-	TableBody, err = template.New("body").Parse(string(body))
+	Table, err = template.New("table").ParseFiles(
+		"html/table/table.html",
+		"html/table/body.html",
+		"html/table/headers.html",
+		"html/table/controls.html",
+	)
 	check(err)
 
 	log.Fatal(http.ListenAndServe("localhost:8082", router))
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Roles []models.Role
-		Page  models.PageMeta
-	}{
-		Roles: Roles,
-		Page:  models.PageMeta{},
-	}
-	err := Page.Execute(w, data)
+	err := Page.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 	}
 }
 
-func GetTableBody(w http.ResponseWriter, r *http.Request) {
+func GetTable(w http.ResponseWriter, r *http.Request) {
 	chTeams := make(chan any, 1)
 
 	go Client.GetTeamsAsync(chTeams)
@@ -127,7 +121,7 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		page = 1
 	}
-	users, err := Client.GetAggregatedUsers(page, size, "user")
+	users, meta, err := Client.GetAggregatedUsers(page, size, "user")
 	if err != nil {
 		http.Error(w, "OOPS", 500)
 	}
@@ -147,20 +141,22 @@ func GetTableBody(w http.ResponseWriter, r *http.Request) {
 		teams = t
 	}
 
+	meta.FirstElement = meta.Number*meta.Size + 1
+	meta.Number += 1
+
 	data := struct {
+		Roles []models.Role
 		Users []*models.User
 		Teams []models.Team
+		Meta  models.PageMeta
 	}{
 		Users: users,
 		Teams: teams,
+		Roles: Roles,
+		Meta:  meta,
 	}
 
-	TableBody.Execute(w, data)
-}
-
-func GetTableMeta(w http.ResponseWriter, r *http.Request) {
-	logrus.Info("Hit table meta")
-	Page.ExecuteTemplate(w, "tableMeta", models.PageMeta{Size: 200})
+	Table.Execute(w, data)
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

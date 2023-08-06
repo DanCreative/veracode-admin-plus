@@ -1,6 +1,7 @@
 package veracode
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -128,4 +129,39 @@ func (c *Client) GetUser(userId string) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (c *Client) PutPartialUser(userId string, user models.User) error {
+	reqBody, err := json.Marshal(user)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	logrus.Debug(string(reqBody))
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%susers/%s?partial=true", c.BaseURL, userId), bytes.NewBuffer(reqBody))
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		err = fmt.Errorf("API error. http code: %v. Response Body: %s", resp.Status, string(body))
+		logrus.Error(err)
+		return err
+	}
+
+	return nil
 }

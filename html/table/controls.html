@@ -1,15 +1,15 @@
 {{ define "controls" }}
 <div class="row">
-    <div class="grid-paging-rows-x-to-y-of-z">{{ .FirstElement }} - {{ .Size }} of {{ .TotalElements }}</div>
+    <div class="grid-paging-rows-x-to-y-of-z">{{ .FirstElement }} - {{ .LastElement }} of {{ .TotalElements }}</div>
     <span class="grid-paging-summary-panel">
-        <button type="button" class="grid-paging-button" id="users-1-goto-first-page"> ◀◀ </button>
-        <button script="on click get the (value of #users-1-page-number) as an Int decrement it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-previous-page"> ◀ </button>
+        <button script="on click set the (value of #users-1-page-number) to 1 then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-first-page" {{ if lt .Number 2}}disabled{{ end }}> ◀◀ </button>
+        <button script="on click get the (value of #users-1-page-number) as an Int decrement it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-previous-page" {{ if lt .Number 2}}disabled{{ end }}> ◀ </button>
 
-        <input name="page" class="grid-paging-textbox grid-input ng-untouched ng-pristine ng-valid" value="{{ .Number }}" id="users-1-page-number" hx-get="/users" hx-trigger="change" hx-target="#body" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#users-1-row-select">
+        <input name="page" class="grid-paging-textbox grid-input ng-untouched ng-pristine ng-valid" value="{{ .Number }}" id="users-1-page-number" hx-get="/users" hx-trigger="change" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#users-1-row-select">
         <span class="grid-paging-pageOfY">of {{ .TotalPages }}</span>
 
-        <button script="on click get the (value of #users-1-page-number) as an Int increment it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-next-page"> ▶ </button>
-        <button type="button" class="grid-paging-button" id="users-1-goto-last-page"> ▶▶ </button>
+        <button script="on click get the (value of #users-1-page-number) as an Int increment it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-next-page" {{ if ge .Number .TotalPages }}disabled{{ end }}> ▶ </button>
+        <button script="on click set the (value of #users-1-page-number) to {{ .TotalPages }} then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-last-page" {{ if ge .Number .TotalPages }}disabled{{ end }}> ▶▶ </button>
     </span>
     <span>
         <label for="users-1-row-select">Rows</label>

@@ -66,7 +66,7 @@ func main() {
 	Roles, err = Client.GetRoles()
 	check(err)
 
-	cart := Cart{}
+	cart := NewCart()
 
 	router := chi.NewRouter()
 

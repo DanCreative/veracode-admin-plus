@@ -1,23 +1,23 @@
 package models
 
 type Role struct {
-	RoleId          string `json:"role_id"`
-	RoleName        string `json:"role_name"`
-	RoleDescription string `json:"role_description"`
-	IsApi           bool   `json:"is_api"`
-	IsScanType      bool   `json:"is_scan_type"`
+	RoleId          string `json:"role_id,omitempty"`
+	RoleName        string `json:"role_name,omitempty"`
+	RoleDescription string `json:"role_description,omitempty"`
+	IsApi           bool   `json:"is_api,omitempty"`
+	IsScanType      bool   `json:"is_scan_type,omitempty"`
 	IsChecked       bool   `json:"-"`
 	IsDisabled      bool   `json:"-"`
 	IsAddScanTypes  bool   `json:"-"`
 }
 
 type User struct {
-	Roles               []Role `json:"roles"`
-	UserId              string `json:"user_id"`
-	UserName            string `json:"user_name"`
-	AccountType         string `json:"account_type"`
-	EmailAddress        string `json:"email_address"`
-	Teams               []Team `json:"teams"`
+	Roles               []Role `json:"roles,omitempty"`
+	UserId              string `json:"user_id,omitempty"`
+	UserName            string `json:"user_name,omitempty"`
+	AccountType         string `json:"account_type,omitempty"`
+	EmailAddress        string `json:"email_address,omitempty"`
+	Teams               []Team `json:"teams,omitempty"`
 	CountScanTypeAdders int    `json:"-"`
 }
 

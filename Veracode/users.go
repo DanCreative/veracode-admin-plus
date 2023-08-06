@@ -13,10 +13,10 @@ import (
 )
 
 // GetAggregatedUsers returns a list of users with each of their roles
-func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*models.User, error) {
-	summaryUsers, err := c.GetUsers(page, size, userType)
+func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*models.User, models.PageMeta, error) {
+	summaryUsers, meta, err := c.GetUsers(page, size, userType)
 	if err != nil {
-		return nil, err
+		return nil, models.PageMeta{}, err
 	}
 
 	userOrder := make(map[string]int, len(summaryUsers))
@@ -50,48 +50,49 @@ func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*mod
 		aggregatedUsers[userOrder[user.UserId]] = user
 	}
 
-	return aggregatedUsers, nil
+	return aggregatedUsers, meta, nil
 }
 
 // GetUsers fetches a summary of the users
-func (c *Client) GetUsers(page int, size int, userType string) ([]*models.User, error) {
+func (c *Client) GetUsers(page int, size int, userType string) ([]*models.User, models.PageMeta, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%susers/search?page=%d&size=%d&detailed=true&user_type=%s", c.BaseURL, page-1, size, userType), nil)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return nil, models.PageMeta{}, err
 	}
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return nil, models.PageMeta{}, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return nil, models.PageMeta{}, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = fmt.Errorf("API error. http code: %v. Response Body: %s", resp.Status, string(body))
 		logrus.Error(err)
-		return nil, err
+		return nil, models.PageMeta{}, err
 	}
 
 	userSummaries := struct {
 		Embedded struct {
 			Users []*models.User `json:"users"`
 		} `json:"_embedded"`
+		Page models.PageMeta `json:"page"`
 	}{}
 
 	err = json.Unmarshal(body, &userSummaries)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return nil, models.PageMeta{}, err
 	}
 
-	return userSummaries.Embedded.Users, nil
+	return userSummaries.Embedded.Users, userSummaries.Page, nil
 }
 
 // GetUser fetches a user by ID

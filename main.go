@@ -142,6 +142,7 @@ func GetTable(w http.ResponseWriter, r *http.Request) {
 	}
 
 	meta.FirstElement = meta.Number*meta.Size + 1
+	meta.LastElement = meta.Number*meta.Size + len(users)
 	meta.Number += 1
 
 	data := struct {

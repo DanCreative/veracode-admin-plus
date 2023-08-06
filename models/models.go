@@ -33,4 +33,5 @@ type PageMeta struct {
 	TotalElements int `json:"total_elements,omitempty"`
 	TotalPages    int `json:"total_pages,omitempty"`
 	FirstElement  int
+	LastElement   int
 }

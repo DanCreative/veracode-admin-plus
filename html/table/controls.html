@@ -15,11 +15,11 @@
         <label for="users-1-row-select">Rows</label>
 
         <select name="size" class="grid-paging-row-select" id="users-1-row-select" hx-get="/users" hx-trigger="change" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#users-1-page-number">
-            <option value="10" id="users-1-row-select-10"> 10 </option>
-            <option value="25" id="users-1-row-select-25"> 25 </option>
-            <option value="50" id="users-1-row-select-50"> 50 </option>
-            <option value="100" id="users-1-row-select-100"> 100 </option>
-            <option value="250" id="users-1-row-select-250"> 250 </option>
+            <option value="10" id="users-1-row-select-10" {{ if eq .Size 10 }}selected{{ end }}> 10 </option>
+            <option value="25" id="users-1-row-select-25" {{ if eq .Size 25 }}selected{{ end }}> 25 </option>
+            <option value="50" id="users-1-row-select-50" {{ if eq .Size 50 }}selected{{ end }}> 50 </option>
+            <option value="100" id="users-1-row-select-100" {{ if eq .Size 100 }}selected{{ end }}> 100 </option>
+            <option value="250" id="users-1-row-select-250" {{ if eq .Size 250 }}selected{{ end }}> 250 </option>
         </select>
     </span>
 </div>

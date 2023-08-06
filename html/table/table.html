@@ -1,0 +1,7 @@
+{{ define "table" }}
+    <table>
+        {{ template "headers" . }}
+        {{ template "body" . }}
+    </table>
+    {{ template "controls" .Meta }}
+{{ end }}

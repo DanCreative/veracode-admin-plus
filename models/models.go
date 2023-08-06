@@ -32,4 +32,5 @@ type PageMeta struct {
 	Size          int `json:"size,omitempty"`
 	TotalElements int `json:"total_elements,omitempty"`
 	TotalPages    int `json:"total_pages,omitempty"`
+	FirstElement  int
 }

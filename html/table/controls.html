@@ -1,6 +1,6 @@
 {{ define "controls" }}
 <div class="row">
-    <div class="grid-paging-rows-x-to-y-of-z">{{ .Number }} - {{ .Size }} of {{ .TotalElements }}</div>
+    <div class="grid-paging-rows-x-to-y-of-z">{{ .FirstElement }} - {{ .Size }} of {{ .TotalElements }}</div>
     <span class="grid-paging-summary-panel">
         <button type="button" class="grid-paging-button" id="users-1-goto-first-page"> ◀◀ </button>
         <button script="on click get the (value of #users-1-page-number) as an Int decrement it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-previous-page"> ◀ </button>

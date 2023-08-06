@@ -58,7 +58,9 @@
             </span>
             {{ end }}
         </div>
-        <div id="load-body" class="htmx-indicator loader"></div>
+        <div id="load-body" class="htmx-indicator overlay">
+            <div id="spinner"></div>
+        </div>
     </div>
     <script>
         htmx.on("htmx:afterOnLoad", function(evt) {

@@ -12,12 +12,30 @@
     <script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
     <script src="/assets/jquery-3.7.0.min.js"></script>
     <script src="/assets/chosen.jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-    <div id="container" class="container" hx-get="/users" hx-swap="innerHTML" hx-target="this" hx-trigger="load" hx-indicator="#load-body">
+    <div id="container" class="container" hx-disinherit="*" hx-get="/users" hx-swap="innerHTML" hx-target="this" hx-trigger="load" hx-indicator="#load-body">
 
     </div>
+
+    <div id="cart-controls" hidden script="on alter remove @hidden from me end">
+        <button id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"
+            script="on htmx:confirm(issueRequest)
+                        halt the event
+                        call Swal.fire({title: 'Confirm', text:'Do you want to continue?'})
+                        if result.isConfirmed issueRequest()
+                    end    
+                    on htmx:responseError
+                        call Swal.fire({icon: 'error', title: 'Oops...', text: 'Something went wrong while trying to update the users!'})
+                    end
+                    on htmx:afterOnLoad
+                        call Swal.fire({icon: 'success', title: 'Whoop! Whoop!', text: 'Users updated successfully!'})
+                    end"
+                    >Submit</button>
+    </div>
+
     <div id="load-body" class="htmx-indicator overlay">
         <div id="spinner"></div>
     </div>

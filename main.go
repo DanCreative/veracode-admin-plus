@@ -66,6 +66,30 @@ func main() {
 	Roles, err = Client.GetRoles()
 	check(err)
 
+	// users := map[string]models.User{
+	// 	"f1721f3d-6746-4db2-a29f-5f9a2e3a1239": {
+	// 		Roles: []models.Role{
+	// 			{RoleId: "9fd0916c-f25c-4b7a-89e6-84d648995235"},
+	// 		},
+	// 		Teams: []models.Team{
+	// 			{TeamId: "62ee3953-2418-465c-950f-67700cfaaeaf"},
+	// 		},
+	// 	},
+	// 	"b54b40aa-92ed-4ded-b4ac-b03c67468acd": {
+	// 		Roles: []models.Role{
+	// 			{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356"},
+	// 			{RoleId: "9fd0916c-f25c-4b7a-89e6-84d648995235"},
+	// 		},
+	// 	},
+	// }
+
+	// errs := Client.BulkPutPartialUsers(users)
+	// for _, err := range errs {
+	// 	logrus.Error(err)
+	// }
+
+	// return
+
 	cart := NewCart()
 
 	router := chi.NewRouter()
@@ -83,6 +107,8 @@ func main() {
 			r.Put("/", cart.PutUser)
 		})
 	})
+
+	router.Post("/cart/submit", cart.SubmitCart)
 
 	page, err := os.ReadFile("html/index.html")
 	check(err)

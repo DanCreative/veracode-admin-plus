@@ -43,12 +43,19 @@ func (c *Cart) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	c.users[userID] = user
 	logrus.Debugf("Added user(%s) to cart: %v", userID, user)
-	err := Client.PutPartialUser(userID, user)
-	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (c *Cart) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func (c *Cart) SubmitCart(w http.ResponseWriter, r *http.Request) {
+	errs := Client.BulkPutPartialUsers(c.users)
+	if len(errs) > 0 {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

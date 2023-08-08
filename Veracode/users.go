@@ -132,6 +132,7 @@ func (c *Client) GetUser(userId string) (models.User, error) {
 	return user, nil
 }
 
+// PutPartialUser updates a user by ID
 func (c *Client) PutPartialUser(userId string, user models.User) error {
 	reqBody, err := json.Marshal(user)
 	if err != nil {
@@ -164,5 +165,38 @@ func (c *Client) PutPartialUser(userId string, user models.User) error {
 		return err
 	}
 
+	logrus.Infof("Successfully updated user: %s", userId)
 	return nil
+}
+
+// BulkPutPartialUsers updates multiple users async
+func (c *Client) BulkPutPartialUsers(users map[string]models.User) []error {
+	chError := make(chan error, len(users))
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	for k, v := range users {
+		wg.Add(1)
+		go func(userId string, user models.User, ch chan error) {
+			ch <- c.PutPartialUser(userId, user)
+			wg.Done()
+
+		}(k, v, chError)
+	}
+	go func() {
+		wg.Wait()
+		close(chError)
+	}()
+
+	var errors []error
+
+	for err := range chError {
+		if err != nil {
+			logrus.Errorf("Error picked up during bulk put: %s", err)
+			mu.Lock()
+			errors = append(errors, err)
+			mu.Unlock()
+		}
+	}
+	return errors
 }

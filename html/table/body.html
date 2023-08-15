@@ -25,8 +25,14 @@
                                             then send ${{ $i }}roles to .scan-type
                                             then send alter to #cart-controls"></td>
                         {{ else }}
-                            <td><input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"
-                                script="on click send alter to #cart-controls"></td>
+                            <td>
+                                <input hx-put="/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"
+                                script="on click send alter to #cart-controls">
+                                
+                                {{ if and (eq .RoleName "extadmin") .IsChecked }}
+                                    <input type="checkbox" name="{{ .RoleName }}" checked hidden class="roles-{{ $user.UserId }}">
+                                {{ end }}
+                            </td>
                         {{ end }}
                     {{ end }}
                 {{ end }}

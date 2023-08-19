@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"net/http"
 
 	"github.com/DanCreative/veracode-admin-plus/models"
@@ -9,12 +10,14 @@ import (
 )
 
 type Cart struct {
-	users map[string]models.User
+	users   map[string]models.User
+	changes *template.Template
 }
 
-func NewCart() Cart {
+func NewCart(tmpl *template.Template) Cart {
 	return Cart{
-		users: make(map[string]models.User),
+		changes: tmpl,
+		users:   make(map[string]models.User),
 	}
 }
 
@@ -50,6 +53,14 @@ func (c *Cart) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (c *Cart) GetUsers(w http.ResponseWriter, r *http.Request) {
+	logrus.Debug(c.users)
+	err := c.changes.Execute(w, c.users)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func (c *Cart) SubmitCart(w http.ResponseWriter, r *http.Request) {
 	errs := Client.BulkPutPartialUsers(c.users)
 	if len(errs) > 0 {
@@ -57,5 +68,11 @@ func (c *Cart) SubmitCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c.ClearCart()
+
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (c *Cart) ClearCart() {
+	c.users = make(map[string]models.User)
 }

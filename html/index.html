@@ -20,20 +20,8 @@
 
     </div>
 
-    <div id="cart-controls" hidden script="on alter remove @hidden from me end">
-        <button id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"
-            script="on htmx:confirm(issueRequest)
-                        halt the event
-                        call Swal.fire({title: 'Confirm', text:'Do you want to continue?'})
-                        if result.isConfirmed issueRequest()
-                    end    
-                    on htmx:responseError
-                        call Swal.fire({icon: 'error', title: 'Oops...', text: 'Something went wrong while trying to update the users!'})
-                    end
-                    on htmx:afterOnLoad
-                        call Swal.fire({icon: 'success', title: 'Whoop! Whoop!', text: 'Users updated successfully!'})
-                    end"
-                    >Submit</button>
+    <div id="cart-controls" hx-get="/cart/users" hx-swap="innerHTML" hx-trigger="alter delay:1s">
+
     </div>
 
     <div id="load-body" class="htmx-indicator overlay">

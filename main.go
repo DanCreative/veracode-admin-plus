@@ -90,8 +90,6 @@ func main() {
 
 	// return
 
-	cart := NewCart()
-
 	router := chi.NewRouter()
 
 	router.Get("/", IndexHandler)
@@ -102,13 +100,23 @@ func main() {
 
 	router.Route("/users", func(r chi.Router) {
 		r.Get("/", GetTable)
-
-		r.Route("/{userID}", func(r chi.Router) {
-			r.Put("/", cart.PutUser)
-		})
 	})
 
-	router.Post("/cart/submit", cart.SubmitCart)
+	tmpl, err := template.ParseFiles("html/cart/cart.html")
+	check(err)
+	cart := NewCart(tmpl)
+
+	router.Route("/cart", func(r chi.Router) {
+		r.Post("/submit", cart.SubmitCart)
+
+		r.Route("/users", func(r chi.Router) {
+			r.Get("/", cart.GetUsers)
+			r.Route("/{userID}", func(r chi.Router) {
+				r.Put("/", cart.PutUser)
+			})
+		})
+
+	})
 
 	page, err := os.ReadFile("html/index.html")
 	check(err)

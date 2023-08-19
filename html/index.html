@@ -16,11 +16,11 @@
 </head>
 
 <body>
-    <div id="container" class="container" hx-disinherit="*" hx-get="/users" hx-swap="innerHTML" hx-target="this" hx-trigger="load" hx-indicator="#load-body">
+    <div id="container" class="container" hx-disinherit="*" hx-get="/users" hx-swap="innerHTML" hx-target="this" hx-trigger="load,force" hx-indicator="#load-body">
 
     </div>
 
-    <div id="cart-controls" hx-get="/cart/users" hx-swap="innerHTML" hx-trigger="alter delay:1s">
+    <div id="cart-controls" hx-get="/cart/users" hx-swap="innerHTML" hx-trigger="load,alter delay:10ms">
 
     </div>
 

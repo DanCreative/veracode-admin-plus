@@ -108,6 +108,7 @@ func main() {
 
 	router.Route("/cart", func(r chi.Router) {
 		r.Post("/submit", cart.SubmitCart)
+		r.Delete("/", cart.DeleteUsers)
 
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/", cart.GetUsers)

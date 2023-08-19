@@ -53,11 +53,18 @@ func (c *Cart) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (c *Cart) DeleteUsers(w http.ResponseWriter, r *http.Request) {
+	c.ClearCart()
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (c *Cart) GetUsers(w http.ResponseWriter, r *http.Request) {
 	logrus.Debug(c.users)
-	err := c.changes.Execute(w, c.users)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if len(c.users) > 0 {
+		err := c.changes.Execute(w, c.users)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 }
 

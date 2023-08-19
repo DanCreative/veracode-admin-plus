@@ -95,6 +95,7 @@ th.rotate > div > span {
 }
 tr {
     border-bottom: var(--table-border-width) solid gray;
+    transition: background-color 450ms linear;
 }
 td {
     border-right: var(--table-border-width) solid gray;
@@ -135,4 +136,8 @@ th {
 
 .email {
     min-width: 400px;
+}
+
+.altered {
+    background-color: #FF0;
 }

@@ -3,9 +3,9 @@
         {{ $teams := .Teams }}
         {{ range $i, $user := .Users }}
             <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }}">
-                <td class="details">{{ $user.EmailAddress }}</td>
-                <td class="details">{{ $user.AccountType }}</td>
-                <td class="details">
+                <td class="body-details">{{ $user.EmailAddress }}</td>
+                <td class="body-details">{{ $user.AccountType }}</td>
+                <td class="body-details">
                     <select multiple name="teams" class="teams-select roles-{{ $user.UserId }}">
                         {{ range $team := $teams }}
                             <option value="{{$team.TeamId}}" {{ range $userTeam := $user.Teams }}{{ if eq $team.TeamId $userTeam.TeamId}} selected {{ end }}{{ end }}>{{$team.TeamName}}</option>
@@ -37,8 +37,8 @@
                         {{ end }}
                     {{ end }}
                 {{ end }}
-                <td>
-                    <button script="on click toggle .hide-scan-types-box on the next <div/> end on ${{ $i }}roles if ${{ $i }} is 0 add @disabled else remove @disabled end" class="scan-type" {{ if eq $user.CountScanTypeAdders 0}}disabled{{ end }}>show</button>
+                <td class="long-cell">
+                    <button script="on click toggle .hide-scan-types-box on the next <div/> end on ${{ $i }}roles if ${{ $i }} is 0 add @disabled else remove @disabled end" class="scan-type" {{ if eq $user.CountScanTypeAdders 0}}disabled{{ end }}>🔍</button>
                     <div class="hide-scan-types-box scan-types-box">
                         {{ range .Roles}}
                             {{ if .IsScanType}}

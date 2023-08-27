@@ -1,15 +1,15 @@
 {{ define "headers" }}
 <thead id="thead">
     <tr>
-        <th class="details email">Email</th>
-        <th class="details">User Type</th>
-        <th class="details">Team(s)</th>
+        <th class="header-details email">Email</th>
+        <th class="header-details">User Type</th>
+        <th class="header-details">Team(s)</th>
         {{ range .Roles }}
             {{ if not .IsScanType}}
                 <th class="rotate"><div><span>{{ .RoleDescription }}</span></div></th>
             {{ end }}
         {{ end }}
-        <th class="rotate"><div><span>Scan Type</span></div></th>
+        <th class="last-header header-details">Actions</th>
     </tr>
 </thead>
 {{ end }}

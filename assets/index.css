@@ -62,61 +62,6 @@
     }
 }
 
-table {
-    margin-top: 100px;
-    border-collapse: collapse;
-    --table-border-width: 1px;
-}
-th.rotate {
-    white-space: nowrap;
-    position: relative;
-}
-th.rotate > div {
-    /* place div at bottom left of the th parent */
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    /* Make sure short labels still meet the corner of the parent otherwise you'll get a gap */
-    text-align: left;
-    /* Move the top left corner of the span's bottom-border to line up with the top left corner of the td's border-right border so that the border corners are matched
-    * Rotate 315 (-45) degrees about matched border corners */
-    transform: 
-        translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width))
-        rotate(315deg);
-    transform-origin: 0% calc(100% - var(--table-border-width));
-    width: 100%;
-}
-th.rotate > div > span {
-    /* make sure the bottom of the span is matched up with the bottom of the parent div */
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    border-bottom: var(--table-border-width) solid gray;
-}
-tr {
-    border-bottom: var(--table-border-width) solid gray;
-    transition: background-color 450ms linear;
-}
-td {
-    border-right: var(--table-border-width) solid gray;
-    border-left: var(--table-border-width) solid gray;
-    /* make sure this is at least as wide as sqrt(2) * height of the tallest letter in your font or the headers will overlap each other*/
-    min-width: 30px;
-    /* padding-top: 2px;
-    padding-left: 5px; */
-    text-align: center;
-}
-
-.details {
-    text-align: left;
-    padding-left: 5px;
-    padding-right: 10px;
-}
-
-th {
-    min-width: 30px;
-}
-
 .row {
     text-align: center;
     align-items: center;
@@ -132,10 +77,6 @@ th {
     flex-direction: row;
     flex-grow: 3;
     justify-content: center;
-}
-
-.email {
-    min-width: 400px;
 }
 
 .altered {

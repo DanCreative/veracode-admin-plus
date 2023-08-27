@@ -69,7 +69,10 @@
     padding: 5px;
     display: flex;
     flex-direction: row;
-    max-width: 941.703px;
+    border: 1px solid var(--border-color);
+    font-family: Fira Sans,Helvetica,Arial,sans-serif;
+    font-size: 12px;
+    vertical-align: middle;
 }
 
 .grid-paging-summary-panel {
@@ -81,4 +84,8 @@
 
 .altered {
     background-color: #FF0;
+}
+
+.container {
+    width: max-content;
 }

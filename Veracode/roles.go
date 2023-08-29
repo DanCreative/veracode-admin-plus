@@ -18,29 +18,29 @@ var AddScanTypesRoles = map[string]bool{
 
 // ! Hardcoded to page 1 size 40 for simplicity for now
 // ! Only handling Human users at the moment
-func (c *Client) GetRoles() ([]models.Role, error) {
+func (c *Client) GetRoles() error {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%sroles?page=0&size=40", c.BaseURL), nil)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return err
 	}
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return err
 	}
 
 	if resp.StatusCode != 200 {
 		err = fmt.Errorf("API error. http code: %v. Response Body: %s", resp.Status, string(body))
 		logrus.Error(err)
-		return nil, err
+		return err
 	}
 
 	data := struct {
@@ -52,7 +52,7 @@ func (c *Client) GetRoles() ([]models.Role, error) {
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		logrus.Error(err)
-		return nil, err
+		return err
 	}
 
 	var humanRoles []models.Role
@@ -67,5 +67,6 @@ func (c *Client) GetRoles() ([]models.Role, error) {
 		}
 	}
 
-	return humanRoles, err
+	c.Roles = humanRoles
+	return nil
 }

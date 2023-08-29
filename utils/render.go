@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
@@ -6,14 +6,14 @@ import (
 )
 
 // RenderValidation adds roles for rendering purposes.
-func RenderValidation(user *models.User) {
+func RenderValidation(user *models.User, roles []models.Role) {
 	var isAdmin bool
 	hasScanTypes := 0
 
 	// Add missing roles
-	newRoles := make([]models.Role, len(Roles))
+	newRoles := make([]models.Role, len(roles))
 outer:
-	for i, systemRole := range Roles {
+	for i, systemRole := range roles {
 		for _, userRole := range user.Roles {
 			if userRole.RoleId == systemRole.RoleId {
 				systemRole.IsChecked = true

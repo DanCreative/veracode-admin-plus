@@ -6,18 +6,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
+	"github.com/DanCreative/veracode-admin-plus/handlers"
 	"github.com/DanCreative/veracode-admin-plus/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
 var Page *template.Template
-var Table *template.Template
-var Roles []models.Role
 var Client *veracode.Client
 
 // var Roles []Role = []Role{
@@ -55,7 +53,11 @@ func main() {
 		}
 	}
 
+	// ---------------------- LOGGING ------------------------------
+
 	logrus.SetLevel(logrus.DebugLevel)
+
+	// ---------------------- CLIENT ------------------------------
 
 	transport, err := veracode.NewAuthTransport(nil)
 	check(err)
@@ -63,48 +65,50 @@ func main() {
 	Client, err = veracode.NewClient("https://api.veracode.eu/api/authn/v2", transport.Client())
 	check(err)
 
-	Roles, err = Client.GetRoles()
+	roles, err := Client.GetRoles()
 	check(err)
 
-	// users := map[string]models.User{
-	// 	"f1721f3d-6746-4db2-a29f-5f9a2e3a1239": {
-	// 		Roles: []models.Role{
-	// 			{RoleId: "9fd0916c-f25c-4b7a-89e6-84d648995235"},
-	// 		},
-	// 		Teams: []models.Team{
-	// 			{TeamId: "62ee3953-2418-465c-950f-67700cfaaeaf"},
-	// 		},
-	// 	},
-	// 	"b54b40aa-92ed-4ded-b4ac-b03c67468acd": {
-	// 		Roles: []models.Role{
-	// 			{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356"},
-	// 			{RoleId: "9fd0916c-f25c-4b7a-89e6-84d648995235"},
-	// 		},
-	// 	},
-	// }
+	// ---------------------- TEMPLATES ------------------------------
 
-	// errs := Client.BulkPutPartialUsers(users)
-	// for _, err := range errs {
-	// 	logrus.Error(err)
-	// }
+	indexFile, err := os.ReadFile("html/index.html")
+	check(err)
 
-	// return
+	indexTemplate, err := template.New("webpage").Parse(string(indexFile))
+	check(err)
+
+	tableTemplate, err := template.New("table").ParseFiles(
+		"html/table/table.html",
+		"html/table/body.html",
+		"html/table/headers.html",
+		"html/table/controls.html",
+	)
+	check(err)
+
+	cartTemplate, err := template.ParseFiles("html/cart/cart.html")
+	check(err)
+
+	// ---------------------- HANDLERS ------------------------------
+
+	userHandler := handlers.UserHandler{
+		Cart:   make(map[string]models.User),
+		Roles:  roles,
+		Table:  tableTemplate,
+		Client: Client,
+	}
+
+	pageHandler := handlers.PageHandler{
+		Page: indexTemplate,
+	}
+
+	// ---------------------- ROUTER ------------------------------
 
 	router := chi.NewRouter()
+	cart := NewCart(cartTemplate)
 
-	router.Get("/", IndexHandler)
-
-	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "assets"))
-	FileServer(router, "/assets", filesDir)
-
+	router.Get("/", pageHandler.GetIndex)
 	router.Route("/users", func(r chi.Router) {
-		r.Get("/", GetTable)
+		r.Get("/", userHandler.GetTable)
 	})
-
-	tmpl, err := template.ParseFiles("html/cart/cart.html")
-	check(err)
-	cart := NewCart(tmpl)
 
 	router.Route("/cart", func(r chi.Router) {
 		r.Post("/submit", cart.SubmitCart)
@@ -116,83 +120,17 @@ func main() {
 				r.Put("/", cart.PutUser)
 			})
 		})
-
 	})
 
-	page, err := os.ReadFile("html/index.html")
-	check(err)
+	// ---------------------- FILE SERVER ------------------------------
 
-	Page, err = template.New("webpage").Parse(string(page))
-	check(err)
-	Table, err = template.New("table").ParseFiles(
-		"html/table/table.html",
-		"html/table/body.html",
-		"html/table/headers.html",
-		"html/table/controls.html",
-	)
-	check(err)
+	workDir, _ := os.Getwd()
+	filesDir := http.Dir(filepath.Join(workDir, "assets"))
+	FileServer(router, "/assets", filesDir)
+
+	// ---------------------- START ------------------------------
 
 	log.Fatal(http.ListenAndServe("localhost:8082", router))
-}
-
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	err := Page.Execute(w, nil)
-	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-	}
-}
-
-func GetTable(w http.ResponseWriter, r *http.Request) {
-	chTeams := make(chan any, 1)
-
-	go Client.GetTeamsAsync(chTeams)
-
-	r.ParseForm()
-	size, err := strconv.Atoi(r.Form.Get("size"))
-	if err != nil {
-		size = 10
-	}
-	page, err := strconv.Atoi(r.Form.Get("page"))
-	if err != nil {
-		page = 1
-	}
-	users, meta, err := Client.GetAggregatedUsers(page, size, "user")
-	if err != nil {
-		http.Error(w, "OOPS", 500)
-	}
-
-	for _, user := range users {
-		RenderValidation(user)
-	}
-
-	var teams []models.Team
-
-	TeamsResult := <-chTeams
-
-	switch t := TeamsResult.(type) {
-	case error:
-		http.Error(w, "OOPS", 500)
-	case []models.Team:
-		teams = t
-	}
-
-	meta.FirstElement = meta.Number*meta.Size + 1
-	meta.LastElement = meta.Number*meta.Size + len(users)
-	meta.Number += 1
-
-	data := struct {
-		Roles []models.Role
-		Users []*models.User
-		Teams []models.Team
-		Meta  models.PageMeta
-	}{
-		Users: users,
-		Teams: teams,
-		Roles: Roles,
-		Meta:  meta,
-	}
-
-	Table.Execute(w, data)
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

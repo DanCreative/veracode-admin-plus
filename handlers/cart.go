@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"errors"
 	"html/template"
 	"net/http"
 
@@ -27,7 +29,6 @@ func NewCartHandler(tmpl *template.Template, client *veracode.Client) CartHandle
 
 func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
-	logrus.Info(userID)
 	r.ParseForm()
 
 	var roles []models.Role
@@ -43,14 +44,43 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	user := models.User{
-		Roles: roles,
-		Teams: teams,
+	// Find user that is being put into the cart in the cached user list
+	user, _ := c.getCachedUser(userID)
+
+	var updatedRoles []models.Role
+
+	for _, putRole := range roles {
+		for _, clientRole := range c.client.Roles {
+			if putRole.RoleName == clientRole.RoleName {
+				updatedRoles = append(updatedRoles, clientRole)
+			}
+		}
 	}
 
+	user.Roles = updatedRoles
+	user.Teams = teams
+
 	c.cart[userID] = user
-	logrus.Debugf("Added user(%s) to cart: %v", userID, user)
+
+	bytes, _ := json.Marshal(user)
+
+	logrus.WithFields(logrus.Fields{"Function": "PutUser"}).Debugf("Added user(%s) to cart: %v", userID, string(bytes))
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (c *CartHandler) getCachedUser(userId string) (models.User, error) {
+	var cacheUser models.User
+
+	for _, v := range c.UserCache {
+		if v.UserId == userId {
+			cacheUser = *v
+			return cacheUser, nil
+		}
+	}
+
+	err := errors.New("cached user not found")
+	logrus.WithFields(logrus.Fields{"Function": "getCachedUser"}).Error(err)
+	return models.User{}, err
 }
 
 func (c *CartHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +92,6 @@ func (c *CartHandler) DeleteUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *CartHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	logrus.Debug(c.cart)
 	if len(c.cart) > 0 {
 		err := c.changes.Execute(w, c.cart)
 		if err != nil {

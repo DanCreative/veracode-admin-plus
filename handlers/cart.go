@@ -5,20 +5,23 @@ import (
 	"net/http"
 
 	"github.com/DanCreative/veracode-admin-plus/models"
+	"github.com/DanCreative/veracode-admin-plus/veracode"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
 type CartHandler struct {
-	cart        map[string]models.User
-	changes     *template.Template
-	userHandler *UserHandler
+	cart      map[string]models.User
+	changes   *template.Template
+	UserCache []*models.User
+	client    *veracode.Client
 }
 
-func NewCart(tmpl *template.Template) CartHandler {
+func NewCartHandler(tmpl *template.Template, client *veracode.Client) CartHandler {
 	return CartHandler{
 		changes: tmpl,
 		cart:    make(map[string]models.User),
+		client:  client,
 	}
 }
 
@@ -51,7 +54,6 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *CartHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-
 }
 
 func (c *CartHandler) DeleteUsers(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +72,7 @@ func (c *CartHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *CartHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
-	errs := c.userHandler.Client.BulkPutPartialUsers(c.cart)
+	errs := c.client.BulkPutPartialUsers(c.cart)
 	if len(errs) > 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

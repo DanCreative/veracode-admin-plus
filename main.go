@@ -11,6 +11,7 @@ import (
 	"github.com/DanCreative/veracode-admin-plus/handlers"
 	"github.com/DanCreative/veracode-admin-plus/veracode"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -51,7 +52,7 @@ func main() {
 
 	// ---------------------- LOGGING ------------------------------
 
-	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.TraceLevel)
 
 	// ---------------------- CLIENT ------------------------------
 
@@ -95,6 +96,7 @@ func main() {
 	// ---------------------- ROUTER ------------------------------
 
 	router := chi.NewRouter()
+	router.Use(middleware.Logger)
 
 	router.Get("/", pageHandler.GetIndex)
 	router.Route("/users", func(r chi.Router) {

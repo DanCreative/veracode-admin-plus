@@ -1,6 +1,6 @@
 module github.com/DanCreative/veracode-admin-plus
 
-go 1.20
+go 1.21
 
 require (
 	github.com/DanCreative/veracode-hmac-go v0.0.0-20230511152627-b3c94db3f014

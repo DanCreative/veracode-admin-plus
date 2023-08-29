@@ -1,8 +1,8 @@
 package utils
 
 import (
-	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
 	"github.com/DanCreative/veracode-admin-plus/models"
+	"github.com/DanCreative/veracode-admin-plus/veracode"
 )
 
 // RenderValidation adds roles for rendering purposes.

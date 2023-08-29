@@ -5,17 +5,15 @@ import (
 	"net/http"
 	"strconv"
 
-	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
 	"github.com/DanCreative/veracode-admin-plus/models"
 	"github.com/DanCreative/veracode-admin-plus/utils"
+	"github.com/DanCreative/veracode-admin-plus/veracode"
 )
 
 type UserHandler struct {
-	UserCache []models.User
-	Cart      map[string]models.User
+	UserCache []*models.User
 	Roles     []models.Role
 	Table     *template.Template
-	Changes   *template.Template
 	Client    *veracode.Client
 }
 
@@ -37,6 +35,8 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "OOPS", 500)
 	}
+
+	u.UserCache = users
 
 	for _, user := range users {
 		utils.RenderValidation(user, u.Roles)

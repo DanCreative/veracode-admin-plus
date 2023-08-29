@@ -14,9 +14,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var Page *template.Template
-var Client *veracode.Client
-
 // var Roles []Role = []Role{
 // 	{RoleId: "cedfb4d5-c8dd-4626-bdbb-c3810f213356", RoleDescription: "Administrator", RoleName: "extadmin"},
 // 	{RoleId: "25b2b166-8f46-4c66-8d52-860217f397a2", RoleDescription: "Collection Manager", RoleName: "collectionManager"},
@@ -61,10 +58,10 @@ func main() {
 	transport, err := veracode.NewAuthTransport(nil)
 	check(err)
 
-	Client, err = veracode.NewClient("https://api.veracode.eu/api/authn/v2", transport.Client())
+	client, err := veracode.NewClient("https://api.veracode.eu/api/authn/v2", transport.Client())
 	check(err)
 
-	roles, err := Client.GetRoles()
+	err = client.GetRoles()
 	check(err)
 
 	// ---------------------- TEMPLATES ------------------------------
@@ -88,16 +85,12 @@ func main() {
 
 	// ---------------------- HANDLERS ------------------------------
 
-	userHandler := handlers.UserHandler{
-		Roles:  roles,
-		Table:  tableTemplate,
-		Client: Client,
-	}
+	cartHandler := handlers.NewCartHandler(cartTemplate, client)
+	userHandler := handlers.NewUserHandler(tableTemplate, client, &cartHandler)
 
 	pageHandler := handlers.PageHandler{
 		Page: indexTemplate,
 	}
-	cartHandler := NewCart(cartTemplate)
 
 	// ---------------------- ROUTER ------------------------------
 

@@ -11,16 +11,23 @@ import (
 )
 
 type UserHandler struct {
-	UserCache []*models.User
-	Roles     []models.Role
-	Table     *template.Template
-	Client    *veracode.Client
+	table       *template.Template
+	client      *veracode.Client
+	cartHandler *CartHandler
+}
+
+func NewUserHandler(table *template.Template, client *veracode.Client, cartHandler *CartHandler) UserHandler {
+	return UserHandler{
+		table:       table,
+		client:      client,
+		cartHandler: cartHandler,
+	}
 }
 
 func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	chTeams := make(chan any, 1)
 
-	go u.Client.GetTeamsAsync(chTeams)
+	go u.client.GetTeamsAsync(chTeams)
 
 	r.ParseForm()
 	size, err := strconv.Atoi(r.Form.Get("size"))
@@ -31,15 +38,13 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		page = 1
 	}
-	users, meta, err := u.Client.GetAggregatedUsers(page, size, "user")
+	users, meta, err := u.client.GetAggregatedUsers(page, size, "user")
 	if err != nil {
 		http.Error(w, "OOPS", 500)
 	}
 
-	u.UserCache = users
-
 	for _, user := range users {
-		utils.RenderValidation(user, u.Roles)
+		utils.RenderValidation(user, u.client.Roles)
 	}
 
 	var teams []models.Team
@@ -65,9 +70,9 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	}{
 		Users: users,
 		Teams: teams,
-		Roles: u.Roles,
+		Roles: u.client.Roles,
 		Meta:  meta,
 	}
 
-	u.Table.Execute(w, data)
+	u.table.Execute(w, data)
 }

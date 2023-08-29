@@ -8,9 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	veracode "github.com/DanCreative/veracode-admin-plus/Veracode"
 	"github.com/DanCreative/veracode-admin-plus/handlers"
-	"github.com/DanCreative/veracode-admin-plus/models"
+	"github.com/DanCreative/veracode-admin-plus/veracode"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -90,7 +89,6 @@ func main() {
 	// ---------------------- HANDLERS ------------------------------
 
 	userHandler := handlers.UserHandler{
-		Cart:   make(map[string]models.User),
 		Roles:  roles,
 		Table:  tableTemplate,
 		Client: Client,
@@ -99,11 +97,11 @@ func main() {
 	pageHandler := handlers.PageHandler{
 		Page: indexTemplate,
 	}
+	cartHandler := NewCart(cartTemplate)
 
 	// ---------------------- ROUTER ------------------------------
 
 	router := chi.NewRouter()
-	cart := NewCart(cartTemplate)
 
 	router.Get("/", pageHandler.GetIndex)
 	router.Route("/users", func(r chi.Router) {
@@ -111,13 +109,13 @@ func main() {
 	})
 
 	router.Route("/cart", func(r chi.Router) {
-		r.Post("/submit", cart.SubmitCart)
-		r.Delete("/", cart.DeleteUsers)
+		r.Post("/submit", cartHandler.SubmitCart)
+		r.Delete("/", cartHandler.DeleteUsers)
 
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/", cart.GetUsers)
+			r.Get("/", cartHandler.GetUsers)
 			r.Route("/{userID}", func(r chi.Router) {
-				r.Put("/", cart.PutUser)
+				r.Put("/", cartHandler.PutUser)
 			})
 		})
 	})

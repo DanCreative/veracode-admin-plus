@@ -1,6 +1,6 @@
 <ul>
     {{ range $key, $value := . }}
-        <li>{{ $key }}</li>
+        <li>{{ $value.EmailAddress }}</li>
     {{ end }}
 </ul>
 <button id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"

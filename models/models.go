@@ -19,6 +19,7 @@ type User struct {
 	EmailAddress        string `json:"email_address,omitempty"`
 	Teams               []Team `json:"teams"`
 	CountScanTypeAdders int    `json:"-"`
+	Altered             bool   `json:"-"`
 }
 
 type Team struct {

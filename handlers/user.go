@@ -8,6 +8,7 @@ import (
 	"github.com/DanCreative/veracode-admin-plus/models"
 	"github.com/DanCreative/veracode-admin-plus/utils"
 	"github.com/DanCreative/veracode-admin-plus/veracode"
+	"github.com/sirupsen/logrus"
 )
 
 type UserHandler struct {
@@ -43,7 +44,21 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "OOPS", 500)
 	}
 
+	// Cache the current query of users
+	// When a user from the current query gets added to the cart,
+	// The cart can store the user from the cache
+	u.cartHandler.UserCache = users
+
+	// Check if user is in the cart
+	// If yes; apply cart changes to user before adding it to template data
 	for _, user := range users {
+		if val, ok := u.cartHandler.cart[user.UserId]; ok {
+			logrus.WithFields(logrus.Fields{"Function": "GetTable"}).Tracef("Found user in cart: %s", val.EmailAddress)
+			user.Roles = val.Roles
+			user.Teams = val.Teams
+			user.Altered = true
+		}
+
 		utils.RenderValidation(user, u.client.Roles)
 	}
 

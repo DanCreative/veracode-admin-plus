@@ -2,7 +2,7 @@
     <tbody>
         {{ $teams := .Teams }}
         {{ range $i, $user := .Users }}
-            <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }}">
+            <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }}" {{ if $user.Altered}}class="altered"{{ end }}>
                 <td class="body-details">{{ $user.EmailAddress }}</td>
                 <td class="body-details">{{ $user.AccountType }}</td>
                 <td class="body-details">

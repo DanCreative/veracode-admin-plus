@@ -47,7 +47,6 @@ func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*mod
 	}()
 
 	for user := range ch {
-		logrus.Debugf("Successfully got user(%s): %v", user.UserId, user)
 		aggregatedUsers[userOrder[user.UserId]] = user
 	}
 

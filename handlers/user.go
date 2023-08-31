@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -30,16 +31,25 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 
 	go u.client.GetTeamsAsync(chTeams)
 
-	r.ParseForm()
-	size, err := strconv.Atoi(r.Form.Get("size"))
-	if err != nil {
-		size = 10
+	q := r.URL.Query()
+	q.Add("detailed", "true")
+	q.Add("user_type", "user")
+
+	if !q.Has("size") {
+		q.Add("size", "10")
 	}
-	page, err := strconv.Atoi(r.Form.Get("page"))
-	if err != nil {
-		page = 1
+
+	if !q.Has("page") {
+		q.Add("page", "0")
+	} else {
+		page, err := strconv.Atoi(q.Get("page"))
+		if err != nil {
+			page = 1
+		}
+		q.Set("page", fmt.Sprint(page-1))
 	}
-	users, meta, err := u.client.GetAggregatedUsers(page, size, "user")
+
+	users, meta, err := u.client.GetAggregatedUsers(q)
 	if err != nil {
 		http.Error(w, "OOPS", 500)
 	}

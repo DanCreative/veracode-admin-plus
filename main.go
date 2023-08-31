@@ -78,6 +78,7 @@ func main() {
 		"html/table/body.html",
 		"html/table/headers.html",
 		"html/table/controls.html",
+		"html/table/search.html",
 	)
 	check(err)
 

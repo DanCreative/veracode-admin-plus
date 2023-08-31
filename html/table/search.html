@@ -1,0 +1,8 @@
+{{ define "search" }}
+<div class="row">
+    <div>
+        <input type="search" id="search_term" name="search_term" placeholder="Search by name, username, email, or API ID">
+        <button hx-get="/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#search_term,#users-1-row-select">Go</button>
+    </div>
+</div>
+{{ end }}

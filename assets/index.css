@@ -66,20 +66,17 @@
     text-align: center;
     align-items: center;
     margin-top: 10px;
+    margin-bottom: 10px;
     padding: 5px;
     display: flex;
     flex-direction: row;
     border: 1px solid var(--border-color);
     font-family: Fira Sans,Helvetica,Arial,sans-serif;
     font-size: 12px;
-    vertical-align: middle;
 }
 
 .grid-paging-summary-panel {
-    display: flex;
-    flex-direction: row;
     flex-grow: 3;
-    justify-content: center;
 }
 
 .altered {

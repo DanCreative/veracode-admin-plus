@@ -102,6 +102,8 @@ func main() {
 	router.Get("/", pageHandler.GetIndex)
 	router.Route("/users", func(r chi.Router) {
 		r.Get("/", userHandler.GetTable)
+		r.Delete("/filters", userHandler.DeleteFilters)
+		r.Delete("/filters/{filterID}", userHandler.DeleteFilter)
 	})
 
 	router.Route("/cart", func(r chi.Router) {

@@ -135,3 +135,7 @@ svg {
 .filter-filter .filter-label {
     font-weight: 700
 }
+
+#search_term {
+    width: 290px;
+}

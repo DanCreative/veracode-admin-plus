@@ -125,12 +125,13 @@ th {
 
 svg {
     fill: currentColor;
+    cursor: pointer;
 }
 
 .filter-filter span {
     vertical-align: middle
 }
 
-.filter-filter span:nth-child(1) {
+.filter-filter .filter-label {
     font-weight: 700
 }

@@ -1,6 +1,6 @@
 {{ define "controls" }}
-<div class="row">
-    <div class="grid-paging-rows-x-to-y-of-z">{{ .FirstElement }} - {{ .LastElement }} of {{ .TotalElements }}</div>
+<div class="band-controls">
+    <div>{{ .FirstElement }} - {{ .LastElement }} of {{ .TotalElements }}</div>
     <span class="grid-paging-summary-panel">
         <button script="on click set the (value of #users-1-page-number) to 1 then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-first-page" {{ if lt .Number 2}}disabled{{ end }}> ◀◀ </button>
         <button script="on click get the (value of #users-1-page-number) as an Int decrement it set the (value of #users-1-page-number) to it then send change to #users-1-page-number" type="button" class="grid-paging-button" id="users-1-goto-previous-page" {{ if lt .Number 2}}disabled{{ end }}> ◀ </button>

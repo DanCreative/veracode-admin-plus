@@ -24,31 +24,11 @@ var filterFriendlyNames = map[string]string{
 	"team_id":       "Team Membership", // value is friendly
 }
 
-var defaultParams = map[string]struct {
-	CanUpdate    bool   // Can value be changed
-	CanDelete    bool   // Parameter can be removed
-	DefaultValue string // Default value set at startup
-}{
-	"detailed": struct {
-		CanUpdate    bool
-		CanDelete    bool
-		DefaultValue string
-	}{false, false, "true"},
-	"user_type": struct {
-		CanUpdate    bool
-		CanDelete    bool
-		DefaultValue string
-	}{false, false, "user"},
-	"size": struct {
-		CanUpdate    bool
-		CanDelete    bool
-		DefaultValue string
-	}{true, false, "10"},
-	"page": struct {
-		CanUpdate    bool
-		CanDelete    bool
-		DefaultValue string
-	}{true, false, "0"},
+var defaultParams = map[string]models.Filter{
+	"detailed":  {CanUpdate: false, CanDelete: false, DefaultValue: "true"},
+	"user_type": {CanUpdate: false, CanDelete: false, DefaultValue: "user"},
+	"size":      {CanUpdate: true, CanDelete: false, DefaultValue: "10"},
+	"page":      {CanUpdate: true, CanDelete: false, DefaultValue: "0"},
 }
 
 type UserHandler struct {
@@ -111,7 +91,7 @@ func getSearchParams(q url.Values, teams []models.Team, roles []models.Role) []m
 				}
 			}
 			if p, ok := defaultParams[k]; (ok && p.CanDelete) || !ok {
-				filter.CanRemove = true
+				filter.CanDelete = true
 			}
 			r = append(r, filter)
 		}

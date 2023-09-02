@@ -42,5 +42,7 @@ type Filter struct {
 	Label         string
 	FriendlyValue string
 	Value         string
-	CanRemove     bool
+	CanUpdate     bool   // Can value be changed
+	CanDelete     bool   // Parameter can be removed
+	DefaultValue  string // Default value set at startup
 }

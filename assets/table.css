@@ -139,3 +139,7 @@ svg {
 #search_term {
     width: 290px;
 }
+
+select:invalid{
+    color: gray;
+}

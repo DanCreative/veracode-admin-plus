@@ -1,7 +1,10 @@
 {{ define "table" }}
-    <table>
-        {{ template "headers" . }}
-        {{ template "body" . }}
-    </table>
-    {{ template "controls" .Meta }}
+    <div>
+        {{ template "search" .Filters }}
+        <table>
+            {{ template "headers" . }}
+            {{ template "body" . }}
+        </table>
+        {{ template "controls" .Meta }}
+    </div>
 {{ end }}

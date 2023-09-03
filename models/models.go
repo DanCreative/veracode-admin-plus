@@ -36,3 +36,13 @@ type PageMeta struct {
 	FirstElement  int
 	LastElement   int
 }
+
+type Filter struct {
+	FriendlyLabel string
+	Label         string
+	FriendlyValue string
+	Value         string
+	CanUpdate     bool   // Can value be changed
+	CanDelete     bool   // Parameter can be removed
+	DefaultValue  string // Default value set at startup
+}

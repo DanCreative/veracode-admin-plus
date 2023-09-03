@@ -22,8 +22,8 @@ th.rotate > div {
     /* Move the top left corner of the span's bottom-border to line up with the top left corner of the td's border-right border so that the border corners are matched
     * Rotate 315 (-45) degrees about matched border corners */
     transform: 
-        translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width))
-        rotate(315deg);
+    translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width))
+    rotate(315deg);
     transform-origin: 0% calc(100% - var(--table-border-width));
     width: 100%;
 }
@@ -38,6 +38,11 @@ tr {
     border-bottom: var(--table-border-width) solid var(--border-color);
     transition: background-color 450ms linear;
 }
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
 td {
     border-right: var(--table-border-width) solid var(--border-color);
     border-left: var(--table-border-width) solid var(--border-color);
@@ -76,7 +81,6 @@ th {
     padding-left: 5px;
     padding-right: 10px;
     font-size: 13px;
-    font-family: Fira Sans,Helvetica,Arial,sans-serif;
 }
 
 .long-cell {
@@ -85,4 +89,53 @@ th {
 
 .last-header {
     text-align: center;
+}
+
+.filters-with-button {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    place-content: center flex-start;
+    margin: 0;
+}
+
+.filter-clear {
+    margin: 0 10px;
+    white-space: nowrap;
+}
+
+.filter-filter {
+    border-radius: 100px;
+    color: #333;
+    background: #eee;
+    display: inline-block;
+    height: 26px;
+    font-size: 12px;
+    margin: 0 0 5px 10px;
+    padding: 2px 8px 2px 12px;
+}
+
+.filter-filter svg {
+    vertical-align: middle
+}
+.filter-filter svg:hover {
+    color: #0aa2dc;
+    font-weight: 400;
+}
+
+svg {
+    fill: currentColor;
+    cursor: pointer;
+}
+
+.filter-filter span {
+    vertical-align: middle
+}
+
+.filter-filter .filter-label {
+    font-weight: 700
+}
+
+#search_term {
+    width: 290px;
 }

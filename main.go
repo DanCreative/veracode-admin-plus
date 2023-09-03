@@ -78,6 +78,7 @@ func main() {
 		"html/table/body.html",
 		"html/table/headers.html",
 		"html/table/controls.html",
+		"html/table/search.html",
 	)
 	check(err)
 
@@ -101,6 +102,8 @@ func main() {
 	router.Get("/", pageHandler.GetIndex)
 	router.Route("/users", func(r chi.Router) {
 		r.Get("/", userHandler.GetTable)
+		r.Delete("/filters", userHandler.DeleteFilters)
+		r.Delete("/filters/{filterID}", userHandler.DeleteFilter)
 	})
 
 	router.Route("/cart", func(r chi.Router) {

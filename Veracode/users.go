@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sync"
 
 	"github.com/DanCreative/veracode-admin-plus/models"
@@ -13,8 +14,8 @@ import (
 )
 
 // GetAggregatedUsers returns a list of users with each of their roles
-func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*models.User, models.PageMeta, error) {
-	summaryUsers, meta, err := c.GetUsers(page, size, userType)
+func (c *Client) GetAggregatedUsers(urlArgs url.Values) ([]*models.User, models.PageMeta, error) {
+	summaryUsers, meta, err := c.GetUsers(urlArgs)
 	if err != nil {
 		return nil, models.PageMeta{}, err
 	}
@@ -54,12 +55,14 @@ func (c *Client) GetAggregatedUsers(page int, size int, userType string) ([]*mod
 }
 
 // GetUsers fetches a summary of the users
-func (c *Client) GetUsers(page int, size int, userType string) ([]*models.User, models.PageMeta, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%susers/search?page=%d&size=%d&detailed=true&user_type=%s", c.BaseURL, page-1, size, userType), nil)
+func (c *Client) GetUsers(urlArgs url.Values) ([]*models.User, models.PageMeta, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%susers/search", c.BaseURL), nil)
 	if err != nil {
 		logrus.Error(err)
 		return nil, models.PageMeta{}, err
 	}
+
+	req.URL.RawQuery = urlArgs.Encode()
 
 	resp, err := c.Client.Do(req)
 	if err != nil {

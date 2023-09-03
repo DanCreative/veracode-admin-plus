@@ -19,6 +19,7 @@ type CartHandler struct {
 	client    *veracode.Client
 }
 
+// NewCartHandler creates and returns a new instance of the CartHandler model
 func NewCartHandler(tmpl *template.Template, client *veracode.Client) CartHandler {
 	return CartHandler{
 		changes: tmpl,
@@ -27,6 +28,10 @@ func NewCartHandler(tmpl *template.Template, client *veracode.Client) CartHandle
 	}
 }
 
+// PutUser handler does the following:
+// * Receives the new values
+// * Get user from the local cache with provided id and update said user
+// * Add user to cart
 func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
 	r.ParseForm()
@@ -68,6 +73,7 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// getCachedUser finds a user in the cache using a userId
 func (c *CartHandler) getCachedUser(userId string) (models.User, error) {
 	var cacheUser models.User
 
@@ -86,11 +92,14 @@ func (c *CartHandler) getCachedUser(userId string) (models.User, error) {
 func (c *CartHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
+// DeleteUsers handler clears the cart
 func (c *CartHandler) DeleteUsers(w http.ResponseWriter, r *http.Request) {
 	c.ClearCart()
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// GetUsers handler builds and serves the cart template
+// TODO: Remove
 func (c *CartHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	if len(c.cart) > 0 {
 		err := c.changes.Execute(w, c.cart)
@@ -100,6 +109,7 @@ func (c *CartHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// SubmitCart calls the Veracode API to bulk update all of the users from the cart
 func (c *CartHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
 	errs := c.client.BulkPutPartialUsers(c.cart)
 	if len(errs) > 0 {

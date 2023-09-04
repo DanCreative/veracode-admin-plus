@@ -4,7 +4,7 @@
         <div class="title">All Users</div>
         <div class="filters-with-button">
             <div class="filter-all">
-                {{ range . }}
+                {{ range .Filters }}
                 <div class="filter-filter">
                     <span class="filter-label">{{ .FriendlyLabel }}</span>
                     <span class="equals-sign">=</span>
@@ -17,8 +17,8 @@
                 </div>
                 {{ end }}
             </div>
-            {{ if . }}
-            <button class="filter-clear" hx-delete="/users/filters" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Clear Filter</button>
+            {{ if .Filters }}
+                <button class="filter-clear" hx-delete="/users/filters" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Clear Filter</button>
             {{ end }}
         </div>
     </div>
@@ -26,6 +26,40 @@
         <div>
             <input type="search" id="search_term" name="search_term" placeholder="Search by name, username, email, or API ID">
             <button hx-get="/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#search_term">Go</button>
+        </div>
+        <div>
+            <span>Filter by</span>
+            <select script="on change 
+                                get #filter-options 
+                                then set it's name to my value">
+                <option disabled selected hidden>Select</option>
+                <option value="role_id">Role</option>
+                <option value="user_type">User Type</option>
+                <option value="login_enabled">Login Enabled</option>
+                <option value="login_status">Login Status</option>
+                <option value="saml_user">SAML</option>
+                <option value="team_id">Team Membership</option>
+            </select>
+            <span>=</span>
+            <select name="" id="filter-options">
+                <option disabled selected hidden>Select</option>
+                <option class="user_type" value="user">UI User</option>
+                <option class="user_type" value="api">API User</option>
+                <option class="login_enabled" value="Yes">Yes</option>
+                <option class="login_enabled" value="No">No</option>
+                <option class="login_status" value="Active"> Active </option>
+                <option class="login_status" value="Locked"> Locked </option>
+                <option class="login_status" value="Never"> Never </option>
+                <option class="saml_user" value="Yes">Yes</option>
+                <option class="saml_user" value="No">No</option>
+                {{ range .Teams}}
+                <option class="team_id" value="{{ .TeamId }}">{{ .TeamName }}</option>    
+                {{ end }}
+                {{ range .Roles}}
+                <option class="role_id" value="{{ .RoleId }}">{{ .RoleDescription }}</option>
+                {{ end }}
+            </select>
+            <button hx-get="/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#filter-options">Apply</button>
         </div>
     </div>
 </div>

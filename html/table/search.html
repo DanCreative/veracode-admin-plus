@@ -39,6 +39,7 @@
                 <option value="login_status">Login Status</option>
                 <option value="saml_user">SAML</option>
                 <option value="team_id">Team Membership</option>
+                <option value="cart">Cart</option>
             </select>
             <span>=</span>
             <select name="" id="filter-options">
@@ -52,6 +53,8 @@
                 <option class="login_status" value="Never"> Never </option>
                 <option class="saml_user" value="Yes">Yes</option>
                 <option class="saml_user" value="No">No</option>
+                <option class="cart" value="Yes">Yes</option>
+                <option class="cart" value="No">No</option>
                 {{ range .Teams}}
                 <option class="team_id" value="{{ .TeamId }}">{{ .TeamName }}</option>    
                 {{ end }}

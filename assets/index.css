@@ -132,10 +132,6 @@
     flex-grow: 3;
 }
 
-.altered {
-    background-color: #FF0;
-}
-
 .container {
     width: max-content;
 }

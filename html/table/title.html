@@ -69,9 +69,9 @@
         <span>Cart</span>
         <div>
             {{ if .ShowCart }}
-                <button {{ if not .HasChanges }}disabled{{ end }} hx-delete="/users/filters/cart" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Hide</button>
+                <button id="cart-clear-button" {{ if not .HasChanges }}disabled{{ end }} hx-delete="/users/filters/cart" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Hide</button>
             {{ else }}
-                <button {{ if not .HasChanges }}disabled{{ end }} hx-vals='{"cart": "yes"}' hx-get="/users" hx-trigger="change" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Show</button>
+                <button {{ if not .HasChanges }}disabled{{ end }} hx-vals='{"cart": "Yes"}' hx-get="/users" hx-trigger="click" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Show</button>
             {{ end }}
             <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"
                 script="on htmx:confirm(issueRequest)

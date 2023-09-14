@@ -237,17 +237,21 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	meta.Number += 1
 
 	data := struct {
-		Roles   []models.Role
-		Users   []*models.User
-		Teams   []models.Team
-		Meta    models.PageMeta
-		Filters []models.Filter
+		Roles      []models.Role
+		Users      []*models.User
+		Teams      []models.Team
+		Meta       models.PageMeta
+		Filters    []models.Filter
+		ShowCart   bool
+		HasChanges bool
 	}{
-		Users:   users,
-		Teams:   teams,
-		Roles:   u.client.Roles,
-		Meta:    meta,
-		Filters: filters,
+		Users:      users,
+		Teams:      teams,
+		Roles:      u.client.Roles,
+		Meta:       meta,
+		Filters:    filters,
+		ShowCart:   u.query.Has("cart"),
+		HasChanges: len(u.cartHandler.cart) > 0,
 	}
 
 	u.table.Execute(w, data)

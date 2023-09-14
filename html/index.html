@@ -28,6 +28,14 @@
         htmx.on("htmx:afterOnLoad", function(evt) {
             $(".teams-select").chosen({width: "200px", no_results_text: "No teams found...",placeholder_text_multiple:"Select teams...", display_selected_options: false});
         });
+        function SubmitRow(trId){
+            var tr = $("#" + trId)
+            tr.trigger("submit");
+            tr.addClass('altered');
+            
+            $(".cart-controls").attr("disabled", false);
+            console.log("Triggered submit on " + trId);
+        }
     </script>
 </body>
 

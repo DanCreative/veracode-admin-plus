@@ -69,11 +69,11 @@
         <span>Cart</span>
         <div>
             {{ if .ShowCart }}
-                <button {{ if not .HasChanges }}disabled{{ end }} hx-delete="/users/filters/cart" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Hide</button>
+                <button {{ if not .HasChanges }}disabled{{ end }} hx-delete="/users/filters/cart" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Hide</button>
             {{ else }}
-                <button {{ if not .HasChanges }}disabled{{ end }} hx-vals='{"cart": "yes"}' hx-get="/users" hx-trigger="change" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Show</button>
+                <button {{ if not .HasChanges }}disabled{{ end }} hx-vals='{"cart": "yes"}' hx-get="/users" hx-trigger="change" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Show</button>
             {{ end }}
-            <button {{ if not .HasChanges }}disabled{{ end }} id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"
+            <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"
                 script="on htmx:confirm(issueRequest)
                             halt the event
                             call Swal.fire({title: 'Confirm', text:'Do you want to continue?'})
@@ -88,7 +88,7 @@
                             then send change to #users-1-page-number
                         end">Submit
             </button>
-            <button {{ if not .HasChanges }}disabled{{ end }} id="cart-clear-button" hx-delete="/cart" hx-indicator="#load-body" 
+            <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-clear-button" hx-delete="/cart" hx-indicator="#load-body" 
                 script="on htmx:confirm(issueRequest)
                             halt the event
                             call Swal.fire({title: 'Confirm', text:'Do you want to continue?'})

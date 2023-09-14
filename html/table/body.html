@@ -2,11 +2,11 @@
     <tbody>
         {{ $teams := .Teams }}
         {{ range $i, $user := .Users }}
-            <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }}" {{ if $user.Altered}}class="altered"{{ end }}>
+            <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }} end" {{ if $user.Altered}}class="altered"{{ end }} id="tr-{{ $i }}" hx-put="/cart/users/{{ $user.UserId }}" hx-on="submit" hx-include=".roles-{{ $user.UserId }}">
                 <td class="body-details">{{ $user.EmailAddress }}</td>
                 <td class="body-details">{{ $user.AccountType }}</td>
                 <td class="body-details">
-                    <select multiple name="teams" class="teams-select roles-{{ $user.UserId }}">
+                    <select multiple name="teams" class="teams-select roles-{{ $user.UserId }}" onchange='SubmitRow("tr-{{ $i }}")'>
                         {{ range $team := $teams }}
                             <option value="{{$team.TeamId}}" {{ range $userTeam := $user.Teams }}{{ if eq $team.TeamId $userTeam.TeamId}} selected {{ end }}{{ end }}>{{$team.TeamName}}</option>
                         {{ end }}
@@ -15,7 +15,7 @@
                 {{ range $user.Roles}}
                     {{ if not .IsScanType}}
                         {{ if .IsAddScanTypes }}
-                            <td><input hx-put="/cart/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}" 
+                            <td><input type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}" 
                                 script="on click 
                                             if me.checked 
                                                 increment ${{ $i }} 
@@ -23,12 +23,10 @@
                                                 decrement ${{ $i }} 
                                             end 
                                             then send ${{ $i }}roles to .scan-type
-                                            then add .altered to the closest <tr/>
-                                            then remove @disabled from .cart-controls"></td>
+                                            then SubmitRow('tr-{{ $i }}')"></td>
                         {{ else }}
                             <td>
-                                <input hx-put="/cart/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"
-                                script="on click add .altered to the closest <tr/> then remove @disabled from .cart-controls">
+                                <input onclick='SubmitRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}">
                                 
                                 {{ if and (eq .RoleName "extadmin") .IsChecked }}
                                     <input type="checkbox" name="{{ .RoleName }}" checked hidden class="roles-{{ $user.UserId }}">
@@ -44,24 +42,19 @@
                             {{ if .IsScanType}}
                                 <label for="{{ .RoleName }}">{{ .RoleDescription }}</label>
                                 {{ if ne .RoleName "extsubmitanyscan"}}
-                                    <input hx-put="/cart/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan" 
+                                    <input onclick='SubmitRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan" 
                                     script="on ${{ $i }}roles 
                                                 if ${{ $i }} is 0 
                                                     add @disabled 
                                                     then set me.checked to false 
                                                 else 
                                                     remove @disabled 
-                                            end 
-                                            on click 
-                                                send ${{ $i }}nany to .any-scan
-                                                then add .altered to the closest <tr/>
-                                                then remove @disabled from .cart-controls
-                                            end 
+                                            end
                                             on ${{ $i }}any 
                                                 set me.checked to false 
                                             end"><br>
                                 {{ else }}
-                                    <input hx-put="/cart/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan" 
+                                    <input onclick='SubmitRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan" 
                                     script="on ${{ $i }}roles 
                                                 if ${{ $i }} is 0 
                                                     add @disabled then set me.checked to false 
@@ -70,11 +63,6 @@
                                                 end 
                                             on ${{ $i }}nany 
                                                 set me.checked to false 
-                                            end 
-                                            on click 
-                                                send ${{ $i }}any to .not-any-scan
-                                                then add .altered to the closest <tr/>
-                                                then remove @disabled from .cart-controls
                                             end"><br>
                                 {{ end }}
                             {{ end }}

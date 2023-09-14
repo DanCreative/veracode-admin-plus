@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"html/template"
 	"net/http"
 
 	"github.com/DanCreative/veracode-admin-plus/models"
@@ -14,17 +12,15 @@ import (
 
 type CartHandler struct {
 	cart      map[string]models.User
-	changes   *template.Template
 	UserCache []*models.User
 	client    *veracode.Client
 }
 
 // NewCartHandler creates and returns a new instance of the CartHandler model
-func NewCartHandler(tmpl *template.Template, client *veracode.Client) CartHandler {
+func NewCartHandler(client *veracode.Client) CartHandler {
 	return CartHandler{
-		changes: tmpl,
-		cart:    make(map[string]models.User),
-		client:  client,
+		cart:   make(map[string]models.User),
+		client: client,
 	}
 }
 
@@ -67,9 +63,9 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	c.cart[userID] = user
 
-	bytes, _ := json.Marshal(user)
+	//bytes, _ := json.Marshal(user)
 
-	logrus.WithFields(logrus.Fields{"Function": "PutUser"}).Debugf("Added user(%s) to cart: %v", userID, string(bytes))
+	logrus.WithFields(logrus.Fields{"Function": "PutUser"}).Infof("Added user(%s) to cart", userID)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -98,17 +94,6 @@ func (c *CartHandler) DeleteUsers(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// GetUsers handler builds and serves the cart template
-// TODO: Remove
-func (c *CartHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	if len(c.cart) > 0 {
-		err := c.changes.Execute(w, c.cart)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}
-}
-
 // SubmitCart calls the Veracode API to bulk update all of the users from the cart
 func (c *CartHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
 	errs := c.client.BulkPutPartialUsers(c.cart)
@@ -120,8 +105,10 @@ func (c *CartHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
 	c.ClearCart()
 
 	w.WriteHeader(http.StatusNoContent)
+	logrus.WithFields(logrus.Fields{"Function": "SubmitCart"}).Info("Cart submitted")
 }
 
 func (c *CartHandler) ClearCart() {
 	clear(c.cart)
+	logrus.WithFields(logrus.Fields{"Function": "ClearCart"}).Infof("Cart cleared: %v", c.cart)
 }

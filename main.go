@@ -78,16 +78,13 @@ func main() {
 		"html/table/body.html",
 		"html/table/headers.html",
 		"html/table/controls.html",
-		"html/table/search.html",
+		"html/table/title.html",
 	)
-	check(err)
-
-	cartTemplate, err := template.ParseFiles("html/cart/cart.html")
 	check(err)
 
 	// ---------------------- HANDLERS ------------------------------
 
-	cartHandler := handlers.NewCartHandler(cartTemplate, client)
+	cartHandler := handlers.NewCartHandler(client)
 	userHandler := handlers.NewUserHandler(tableTemplate, client, &cartHandler)
 
 	pageHandler := handlers.PageHandler{
@@ -111,7 +108,6 @@ func main() {
 		r.Delete("/", cartHandler.DeleteUsers)
 
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/", cartHandler.GetUsers)
 			r.Route("/{userID}", func(r chi.Router) {
 				r.Put("/", cartHandler.PutUser)
 			})

@@ -32,8 +32,8 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
 	r.ParseForm()
 
-	var roles []models.Role
-	var teams []models.Team
+	roles := []models.Role{}
+	teams := []models.Team{}
 
 	for k := range r.Form {
 		if k != "teams" {
@@ -65,7 +65,7 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	//bytes, _ := json.Marshal(user)
 
-	logrus.WithFields(logrus.Fields{"Function": "PutUser"}).Infof("Added user(%s) to cart", userID)
+	logrus.WithFields(logrus.Fields{"Function": "PutUser"}).Debugf("Added user(%s) to cart: %v", userID, user)
 	w.WriteHeader(http.StatusNoContent)
 }
 

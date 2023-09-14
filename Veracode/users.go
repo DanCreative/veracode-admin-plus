@@ -150,6 +150,8 @@ func (c *Client) PutPartialUser(userId string, user models.User) error {
 		return err
 	}
 
+	logrus.WithFields(logrus.Fields{"Function": "PutPartialUser"}).Infof("%s %s", req.Method, req.URL)
+
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		logrus.Error(err)
@@ -174,6 +176,7 @@ func (c *Client) PutPartialUser(userId string, user models.User) error {
 
 // BulkPutPartialUsers updates multiple users async
 func (c *Client) BulkPutPartialUsers(users map[string]models.User) []error {
+	logrus.WithFields(logrus.Fields{"Function": "BulkPutPartialUsers"}).Trace("Start")
 	chError := make(chan error, len(users))
 	var wg sync.WaitGroup
 	var mu sync.Mutex

@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 )
 
 var filterFriendlyNames = map[string]string{
+	"cart":          "Cart", // Internal
 	"search_term":   "Search",
 	"role_id":       "Role",      // value is friendly
 	"user_type":     "User Type", // value is friendly
@@ -144,6 +146,37 @@ func (u *UserHandler) updateQuery(q url.Values) {
 	}
 }
 
+// Returns all of the cart users as well as the meta data therof.
+func (u *UserHandler) getCartUsers(q url.Values) ([]*models.User, models.PageMeta) {
+	logrus.WithFields(logrus.Fields{"Function": "getCartUsers"}).Trace("Started")
+	page, _ := strconv.Atoi(q.Get("page"))
+	size, _ := strconv.Atoi(q.Get("size"))
+
+	totalUsersCount := len(u.cartHandler.cart)
+
+	logrus.WithFields(logrus.Fields{"Function": "getCartUsers"}).Debugf("size: %d, page: %d, totalUsersCount: %d", size, page, totalUsersCount)
+	totalUsers := make([]models.User, 0, totalUsersCount)
+	for _, v := range u.cartHandler.cart {
+		totalUsers = append(totalUsers, v)
+	}
+
+	var pagedUsers []*models.User
+	for i := page * size; i < int(math.Min(float64((page+1)*size), float64(totalUsersCount))); i++ {
+
+		pagedUsers = append(pagedUsers, &totalUsers[i])
+	}
+
+	meta := models.PageMeta{
+		Size:          size,
+		Number:        page,
+		TotalElements: len(totalUsers),
+		TotalPages:    int(math.Ceil(float64(totalUsersCount) / float64(size))),
+	}
+	logrus.WithFields(logrus.Fields{"Function": "getCartUsers"}).Debugf("pagedUsers: %v", pagedUsers)
+	logrus.WithFields(logrus.Fields{"Function": "getCartUsers"}).Trace("Finished")
+	return pagedUsers, meta
+}
+
 // GetTable handler makes a call to the Veracode users and teams API endpoints,
 // builds and serves the table template.
 func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
@@ -155,9 +188,17 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	u.updateQuery(q)
 	logrus.Debug(u.query)
 
-	users, meta, err := u.client.GetAggregatedUsers(u.query)
-	if err != nil {
-		http.Error(w, "OOPS", 500)
+	var users []*models.User
+	var meta models.PageMeta
+	var err error
+
+	if u.query.Has("cart") && u.query.Get("cart") == "Yes" {
+		users, meta = u.getCartUsers(u.query)
+	} else {
+		users, meta, err = u.client.GetAggregatedUsers(u.query)
+		if err != nil {
+			http.Error(w, "OOPS", 500)
+		}
 	}
 
 	// Cache the current query of users
@@ -196,17 +237,21 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 	meta.Number += 1
 
 	data := struct {
-		Roles   []models.Role
-		Users   []*models.User
-		Teams   []models.Team
-		Meta    models.PageMeta
-		Filters []models.Filter
+		Roles      []models.Role
+		Users      []*models.User
+		Teams      []models.Team
+		Meta       models.PageMeta
+		Filters    []models.Filter
+		ShowCart   bool
+		HasChanges bool
 	}{
-		Users:   users,
-		Teams:   teams,
-		Roles:   u.client.Roles,
-		Meta:    meta,
-		Filters: filters,
+		Users:      users,
+		Teams:      teams,
+		Roles:      u.client.Roles,
+		Meta:       meta,
+		Filters:    filters,
+		ShowCart:   u.query.Has("cart"),
+		HasChanges: len(u.cartHandler.cart) > 0,
 	}
 
 	u.table.Execute(w, data)

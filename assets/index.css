@@ -93,6 +93,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    font-size: 14px;
 }
 
 .band-title {
@@ -121,6 +122,23 @@
     flex: 0 0 auto;
 }
 
+.band-cart {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);     
+    margin: 0; 
+    padding: 10px 10px 10px 10px;
+    font-size: 14px;
+}
+
+.band-cart>span {
+    margin-right: 8px;
+}
+
 .band-title .filters-with-button {
     display: flex;
     flex: 1 1 auto;
@@ -130,10 +148,6 @@
 
 .grid-paging-summary-panel {
     flex-grow: 3;
-}
-
-.altered {
-    background-color: #FF0;
 }
 
 .container {

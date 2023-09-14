@@ -23,12 +23,12 @@
                                                 decrement ${{ $i }} 
                                             end 
                                             then send ${{ $i }}roles to .scan-type
-                                            then send alter to #cart-controls
-                                            then add .altered to the closest <tr/>"></td>
+                                            then add .altered to the closest <tr/>
+                                            then remove @disabled from .cart-controls"></td>
                         {{ else }}
                             <td>
                                 <input hx-put="/cart/users/{{ $user.UserId }}" hx-trigger="change" hx-include=".roles-{{ $user.UserId }}" type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}"
-                                script="on click send alter to #cart-controls then add .altered to the closest <tr/>">
+                                script="on click add .altered to the closest <tr/> then remove @disabled from .cart-controls">
                                 
                                 {{ if and (eq .RoleName "extadmin") .IsChecked }}
                                     <input type="checkbox" name="{{ .RoleName }}" checked hidden class="roles-{{ $user.UserId }}">
@@ -53,8 +53,9 @@
                                                     remove @disabled 
                                             end 
                                             on click 
-                                                send ${{ $i }}nany to .any-scan 
-                                                then send alter to #cart-controls
+                                                send ${{ $i }}nany to .any-scan
+                                                then add .altered to the closest <tr/>
+                                                then remove @disabled from .cart-controls
                                             end 
                                             on ${{ $i }}any 
                                                 set me.checked to false 
@@ -72,7 +73,8 @@
                                             end 
                                             on click 
                                                 send ${{ $i }}any to .not-any-scan
-                                                then send alter to #cart-controls
+                                                then add .altered to the closest <tr/>
+                                                then remove @disabled from .cart-controls
                                             end"><br>
                                 {{ end }}
                             {{ end }}

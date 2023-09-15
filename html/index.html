@@ -36,6 +36,20 @@
             $(".cart-controls").attr("disabled", false);
             console.log("Triggered submit on " + trId);
         }
+
+        function CascadeValues(name){
+            console.log("Triggered CascadeValues with " + name);
+            $("#filter-options").attr("name", name)
+            $("#filter-options").children().each(function(){
+                if ($(this).hasClass(name)) {
+                    $(this).removeAttr("hidden");
+                    //console.log("Removing hidden from " + this);
+                } else {
+                    $(this).attr("hidden", true);
+                    //console.log("Adding hidden to " + this);
+                }
+            });
+        }
     </script>
 </body>
 

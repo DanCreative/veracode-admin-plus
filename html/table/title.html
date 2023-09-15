@@ -29,9 +29,7 @@
         </div>
         <div>
             <span>Filter by</span>
-            <select script="on change 
-                                get #filter-options 
-                                then set it's name to my value">
+            <select onchange="CascadeValues(this.value)">
                 <option disabled selected hidden>Select</option>
                 <option value="role_id">Role</option>
                 <option value="user_type">User Type</option>
@@ -44,22 +42,22 @@
             <span>=</span>
             <select name="" id="filter-options">
                 <option disabled selected hidden>Select</option>
-                <option class="user_type" value="user">UI User</option>
-                <option class="user_type" value="api">API User</option>
-                <option class="login_enabled" value="Yes">Yes</option>
-                <option class="login_enabled" value="No">No</option>
-                <option class="login_status" value="Active"> Active </option>
-                <option class="login_status" value="Locked"> Locked </option>
-                <option class="login_status" value="Never"> Never </option>
-                <option class="saml_user" value="Yes">Yes</option>
-                <option class="saml_user" value="No">No</option>
-                <option class="cart" value="Yes">Yes</option>
-                <option class="cart" value="No">No</option>
+                <option hidden class="user_type" value="user">UI User</option>
+                <option hidden class="user_type" value="api">API User</option>
+                <option hidden class="login_enabled" value="Yes">Yes</option>
+                <option hidden class="login_enabled" value="No">No</option>
+                <option hidden class="login_status" value="Active"> Active </option>
+                <option hidden class="login_status" value="Locked"> Locked </option>
+                <option hidden class="login_status" value="Never"> Never </option>
+                <option hidden class="saml_user" value="Yes">Yes</option>
+                <option hidden class="saml_user" value="No">No</option>
+                <option hidden class="cart" value="Yes">Yes</option>
+                <option hidden class="cart" value="No">No</option>
                 {{ range .Teams}}
-                <option class="team_id" value="{{ .TeamId }}">{{ .TeamName }}</option>    
+                <option hidden class="team_id" value="{{ .TeamId }}">{{ .TeamName }}</option>    
                 {{ end }}
                 {{ range .Roles}}
-                <option class="role_id" value="{{ .RoleId }}">{{ .RoleDescription }}</option>
+                <option hidden class="role_id" value="{{ .RoleId }}">{{ .RoleDescription }}</option>
                 {{ end }}
             </select>
             <button hx-get="/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#filter-options">Apply</button>

@@ -14,12 +14,12 @@ type Role struct {
 type User struct {
 	Roles               []Role `json:"roles,omitempty"`
 	UserId              string `json:"user_id,omitempty"`
-	UserName            string `json:"user_name,omitempty"`
 	AccountType         string `json:"account_type,omitempty"`
 	EmailAddress        string `json:"email_address,omitempty"`
 	Teams               []Team `json:"teams"`
 	CountScanTypeAdders int    `json:"-"`
 	Altered             bool   `json:"-"`
+	//UserName            string `json:"user_name,omitempty"`
 }
 
 type Team struct {

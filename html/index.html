@@ -28,8 +28,19 @@
         htmx.on("htmx:afterOnLoad", function(evt) {
             $(".teams-select").chosen({width: "200px", no_results_text: "No teams found...",placeholder_text_multiple:"Select teams...", display_selected_options: false});
         });
-        function SubmitRow(trId){
-            var tr = $("#" + trId)
+        function SubmitRow(userId){
+            console.log("userId: "+userId);
+            var trId = "#form-"+userId
+
+            var formValues = htmx.values(htmx.find(trId));
+            console.log("Form Values: "+ formValues);
+            htmx.ajax('PUT', '/cart/users/'+userId, {
+                values: formValues
+            });
+        }
+
+        function AlterRow(trId){
+            var tr = $("#" + trId);
             //tr.trigger("submit");
             tr.addClass('altered');
             

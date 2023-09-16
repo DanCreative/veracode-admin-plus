@@ -62,7 +62,7 @@
             });
         }
 
-        function TeamAdminModalCheckActive(element){
+        function TeamAdminModalCheckActive(admteamSelectId, element){
             var checkbox = $(element);
             var button = checkbox.next();
 
@@ -70,6 +70,7 @@
                 button.addClass("active");
             } else {
                 button.removeClass("active");
+                $("#"+admteamSelectId).val([]);
             }
         }
 

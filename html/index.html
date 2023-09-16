@@ -30,7 +30,7 @@
         });
         function SubmitRow(trId){
             var tr = $("#" + trId)
-            tr.trigger("submit");
+            //tr.trigger("submit");
             tr.addClass('altered');
             
             $(".cart-controls").attr("disabled", false);
@@ -49,6 +49,53 @@
                     //console.log("Adding hidden to " + this);
                 }
             });
+        }
+
+        function TeamAdminModalCheckActive(element){
+            var checkbox = $(element);
+            var button = checkbox.next();
+
+            if (checkbox.is(":checked")) {
+                button.addClass("active");
+            } else {
+                button.removeClass("active");
+            }
+        }
+
+        function TeamAdminModal(modalId, element){
+            var checkbox = $(element).prev();
+            //console.log(checkbox);
+            if (checkbox.is(":checked")) {
+                console.log(checkbox.attr('id') + " is checked");
+                ShowModal(modalId);
+            }else {
+                console.log(checkbox.attr('id') + " is not checked");
+            }
+        }
+        
+        function ShowModal(id){
+            console.log("Trying to find modal: " + id);
+            var modal = $("#" + id);
+            modal.show()
+            //modal.style.display = "block";
+        }
+
+        function CloseAnyModal() {
+            var modals = document.getElementsByClassName("modal");
+            for (let index = 0; index < modals.length; index++) {
+                const modal = modals[index];
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+
+        function CloseParentModal(el) {
+            $(el).parent().parent().hide();
+        }
+
+        window.onclick = function(event) {
+            CloseAnyModal();
         }
     </script>
 </body>

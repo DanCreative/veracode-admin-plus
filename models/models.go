@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type Role struct {
 	RoleId          string `json:"role_id,omitempty"`
 	RoleName        string `json:"role_name,omitempty"`
@@ -23,9 +25,22 @@ type User struct {
 }
 
 type Team struct {
-	TeamId       string `json:"team_id,omitempty"`
-	TeamLegacyId int    `json:"team_legacy_id,omitempty"`
-	TeamName     string `json:"team_name,omitempty"`
+	TeamId       string           `json:"team_id,omitempty"`
+	TeamLegacyId int              `json:"team_legacy_id,omitempty"`
+	TeamName     string           `json:"team_name,omitempty"`
+	Relationship TeamRelationship `json:"relationship,omitempty"`
+}
+
+type TeamRelationship struct {
+	Name string `json:"name,omitempty"`
+}
+
+func (t TeamRelationship) MarshalJSON() ([]byte, error) {
+	// jsonValue, err := json.Marshal(map[string]interface{}{
+	// 	"relationship": t.Name,
+	// })
+	jsonValue, err := json.Marshal(t.Name)
+	return jsonValue, err
 }
 
 type PageMeta struct {

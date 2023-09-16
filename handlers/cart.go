@@ -39,8 +39,8 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 		if k != "teams" {
 			roles = append(roles, models.Role{RoleName: k})
 		} else {
-			for _, v := range r.Form[k] {
-				teams = append(teams, models.Team{TeamId: v})
+			for _, inputTeamId := range r.Form[k] {
+				teams = append(teams, models.Team{TeamId: inputTeamId, Relationship: models.TeamRelationship{Name: "MEMBER"}})
 			}
 		}
 	}

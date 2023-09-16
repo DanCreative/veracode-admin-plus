@@ -34,14 +34,20 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	roles := []models.Role{}
 	teams := []models.Team{}
+	var adminTeams []string
 
 	for k := range r.Form {
-		if k != "teams" {
-			roles = append(roles, models.Role{RoleName: k})
-		} else {
+		if k == "teams" {
 			for _, inputTeamId := range r.Form[k] {
 				teams = append(teams, models.Team{TeamId: inputTeamId, Relationship: models.TeamRelationship{Name: "MEMBER"}})
 			}
+
+		} else if k == "admteams" {
+			adminTeams = r.Form[k]
+
+		} else {
+			roles = append(roles, models.Role{RoleName: k})
+
 		}
 	}
 
@@ -59,7 +65,7 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Roles = updatedRoles
-	user.Teams = teams
+	user.Teams = setGovernedTeams(teams, adminTeams)
 
 	c.cart[userID] = user
 
@@ -67,6 +73,19 @@ func (c *CartHandler) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	logrus.WithFields(logrus.Fields{"Function": "PutUser"}).Debugf("Added user(%s) to cart: %v", userID, user)
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// setGovernedTeams takes a list of teams as well as a list of the ids for the
+// admin teams that were selected and changes all of the teams relationships to ADMIN
+func setGovernedTeams(teams []models.Team, adminTeams []string) []models.Team {
+	for _, aTeamId := range adminTeams {
+		for k, team := range teams {
+			if team.TeamId == aTeamId {
+				teams[k].Relationship.Name = "ADMIN"
+			}
+		}
+	}
+	return teams
 }
 
 // getCachedUser finds a user in the cache using a userId

@@ -5,12 +5,22 @@
             <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }} end" {{ if $user.Altered}}class="altered"{{ end }} id="tr-{{ $i }}">
                 <div id="modal-{{ $user.UserId }}" class="modal">
                     <div class="modal-content">
-                        <span class="modal-close" onclick="CloseParentModal(this)">&times;</span>
-                        <select name="admteams" class="roles-{{ $user.UserId }}">
-                            {{ range $team := $teams }}
-                                <option value="{{$team.TeamId}}" {{ range $userTeam := $user.Teams }}{{ if eq $team.TeamId $userTeam.TeamId}} selected {{ end }}{{ end }}>{{$team.TeamName}}</option>
-                            {{ end }}
-                        </select>
+                        <div class="modal-header">
+                            <h5>Teams</h5>
+                            <span class="modal-close" onclick="CloseParentModal(this)">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <p>Select the teams for the team administrator to manage: </p>
+                            <select multiple name="admteams" class="roles-{{ $user.UserId }}">
+                                {{ range $team := $teams }}
+                                    {{ range $userTeam := $user.Teams }}
+                                        {{ if eq $team.TeamId $userTeam.TeamId }}
+                                            <option value="{{$team.TeamId}}" {{ if eq $userTeam.Relationship.Name "ADMIN" }} selected {{ end }}>{{$team.TeamName}}</option> 
+                                        {{ end }}
+                                    {{ end }}
+                                {{ end }}
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <td class="body-details">{{ $user.EmailAddress }}</td>

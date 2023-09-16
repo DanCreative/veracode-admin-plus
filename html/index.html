@@ -91,7 +91,7 @@
         }
 
         function CloseParentModal(el) {
-            $(el).parent().parent().hide();
+            $(el).closest(".modal").hide();
         }
 
         window.onclick = function(event) {

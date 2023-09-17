@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/DanCreative/veracode-admin-plus/handlers"
+	"github.com/DanCreative/veracode-admin-plus/utils"
 	"github.com/DanCreative/veracode-admin-plus/veracode"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -122,6 +123,7 @@ func main() {
 
 	// ---------------------- START ------------------------------
 
+	utils.OpenBrowser("http://localhost:8082")
 	log.Fatal(http.ListenAndServe("localhost:8082", router))
 }
 

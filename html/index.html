@@ -28,9 +28,20 @@
         htmx.on("htmx:afterOnLoad", function(evt) {
             $(".teams-select").chosen({width: "200px", no_results_text: "No teams found...",placeholder_text_multiple:"Select teams...", display_selected_options: false});
         });
-        function SubmitRow(trId){
-            var tr = $("#" + trId)
-            tr.trigger("submit");
+        function SubmitRow(userId){
+            console.log("userId: "+userId);
+            var trId = "#form-"+userId
+
+            var formValues = htmx.values(htmx.find(trId));
+            console.log("Form Values: "+ formValues);
+            htmx.ajax('PUT', '/cart/users/'+userId, {
+                values: formValues
+            });
+        }
+
+        function AlterRow(trId){
+            var tr = $("#" + trId);
+            //tr.trigger("submit");
             tr.addClass('altered');
             
             $(".cart-controls").attr("disabled", false);
@@ -49,6 +60,70 @@
                     //console.log("Adding hidden to " + this);
                 }
             });
+        }
+
+        function ShowAdminTeams(sourceId, targetId){
+            var teamsSelectVals = $("#" + sourceId).val();
+            var admTeamsSelect = $("#" + targetId);
+            admTeamsSelect.children().each(function(){
+                if (teamsSelectVals.length < 1) {
+                    $(this).attr("hidden", true);
+                } else {
+                    for (let index = 0; index < teamsSelectVals.length; index++) {
+                        if (this.value == teamsSelectVals[index]){
+                            $(this).removeAttr("hidden");
+                        }
+                    }
+                }
+            });
+        }
+
+        function TeamAdminModalCheckActive(admteamSelectId, element){
+            var checkbox = $(element);
+            var button = checkbox.next();
+
+            if (checkbox.is(":checked")) {
+                button.addClass("active");
+            } else {
+                button.removeClass("active");
+                $("#"+admteamSelectId).val([]);
+            }
+        }
+
+        function TeamAdminModal(modalId, element){
+            var checkbox = $(element).prev();
+            //console.log(checkbox);
+            if (checkbox.is(":checked")) {
+                console.log(checkbox.attr('id') + " is checked");
+                ShowModal(modalId);
+            }else {
+                console.log(checkbox.attr('id') + " is not checked");
+            }
+        }
+        
+        function ShowModal(id){
+            console.log("Trying to find modal: " + id);
+            var modal = $("#" + id);
+            modal.show()
+            //modal.style.display = "block";
+        }
+
+        function CloseAnyModal() {
+            var modals = document.getElementsByClassName("modal");
+            for (let index = 0; index < modals.length; index++) {
+                const modal = modals[index];
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+
+        function CloseParentModal(el) {
+            $(el).closest(".modal").hide();
+        }
+
+        window.onclick = function(event) {
+            CloseAnyModal();
         }
     </script>
 </body>

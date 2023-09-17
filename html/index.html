@@ -62,6 +62,22 @@
             });
         }
 
+        function ShowAdminTeams(sourceId, targetId){
+            var teamsSelectVals = $("#" + sourceId).val();
+            var admTeamsSelect = $("#" + targetId);
+            admTeamsSelect.children().each(function(){
+                if (teamsSelectVals.length < 1) {
+                    $(this).attr("hidden", true);
+                } else {
+                    for (let index = 0; index < teamsSelectVals.length; index++) {
+                        if (this.value == teamsSelectVals[index]){
+                            $(this).removeAttr("hidden");
+                        }
+                    }
+                }
+            });
+        }
+
         function TeamAdminModalCheckActive(admteamSelectId, element){
             var checkbox = $(element);
             var button = checkbox.next();

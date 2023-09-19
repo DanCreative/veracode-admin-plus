@@ -25,7 +25,7 @@
                     <td class="body-details">{{ $user.EmailAddress }}</td>
                     <td class="body-details">{{ $user.AccountType }}</td>
                     <td class="body-details">
-                        <select multiple name="teams" id="teams-select-{{ $user.UserId }}" class="teams-select roles-{{ $user.UserId }}" onchange='AlterRow("tr-{{ $i }}"); SubmitRow("{{ $user.UserId }}"); ShowAdminTeams("teams-select-{{ $user.UserId }}","admteams-select-{{ $user.UserId }}");'>
+                        <select multiple hidden name="teams" id="teams-select-{{ $user.UserId }}" class="teams-select roles-{{ $user.UserId }}" onchange='AlterRow("tr-{{ $i }}"); SubmitRow("{{ $user.UserId }}"); ShowAdminTeams("teams-select-{{ $user.UserId }}","admteams-select-{{ $user.UserId }}");'>
                             {{ range $team := $teams }}
                                 <option value="{{$team.TeamId}}" {{ range $userTeam := $user.Teams }}{{ if eq $team.TeamId $userTeam.TeamId}} selected {{ end }}{{ end }}>{{$team.TeamName}}</option>
                             {{ end }}

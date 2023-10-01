@@ -2,7 +2,17 @@
     <tbody>
         {{ $teams := .Teams }}
         {{ range $i, $user := .Users }}
-            <tr script="init set ${{ $i }} to {{ $user.CountScanTypeAdders }} end" {{ if $user.Altered}}class="altered"{{ end }} id="tr-{{ $i }}" hx-include=".roles-{{ $user.UserId }}">
+            <tr {{ if $user.Altered}}class="altered"{{ end }} id="tr-{{ $i }}" hx-include=".roles-{{ $user.UserId }}"  
+            x-data="{
+                countAddScanTypes : {{ $user.CountScanTypeAdders }},
+                addersClicked(el) {
+                    if (el.checked) {
+                        this.countAddScanTypes += 1;
+                    } else {
+                        this.countAddScanTypes -= 1;
+                    }
+                }
+            }">
                 <form id="form-{{ $user.UserId }}">
                     <div id="admteams-modal-{{ $user.UserId }}" class="modal">
                         <div class="modal-content">
@@ -34,15 +44,7 @@
                     {{ range $user.Roles}}
                         {{ if not .IsScanType}}
                             {{ if .IsAddScanTypes }}
-                                <td><input type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }}" hx-put="/cart/users/{{ $user.UserId }}"
-                                    script="on click 
-                                                if me.checked 
-                                                    increment ${{ $i }} 
-                                                else 
-                                                    decrement ${{ $i }} 
-                                                end 
-                                                then send ${{ $i }}roles to .scan-type
-                                                then AlterRow('tr-{{ $i }}')">
+                                <td><input type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }} roles-add-{{ $user.UserId }}" hx-put="/cart/users/{{ $user.UserId }}" @click="addersClicked($el)" onclick="AlterRow('tr-{{ $i }}')">
                                 </td>
                             {{ else }}
                                 <td>
@@ -62,7 +64,7 @@
                         {{ end }}
                     {{ end }}
                     <td class="long-cell">
-                        <button onclick="ShowModal('scantypes-modal-{{ $user.UserId }}')" script="on ${{ $i }}roles if ${{ $i }} is 0 add @disabled else remove @disabled end" class="scan-type" {{ if eq $user.CountScanTypeAdders 0}}disabled{{ end }}>🔍</button>
+                        <button onclick="ShowModal('scantypes-modal-{{ $user.UserId }}')" x-bind:disabled="countAddScanTypes == 0" class="scan-type" {{ if eq $user.CountScanTypeAdders 0}}disabled{{ end }}>🔍</button>
                         <div id="scantypes-modal-{{ $user.UserId }}" class="modal">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -77,28 +79,9 @@
                                                     <div>
                                                         <span>{{ .RoleDescription }}</span>
                                                         {{ if ne .RoleName "extsubmitanyscan"}}
-                                                            <input onclick='AlterRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan" hx-put="/cart/users/{{ $user.UserId }}"
-                                                            script="on ${{ $i }}roles 
-                                                                        if ${{ $i }} is 0 
-                                                                            add @disabled 
-                                                                            then set me.checked to false 
-                                                                        else 
-                                                                            remove @disabled 
-                                                                    end
-                                                                    on ${{ $i }}any 
-                                                                        set me.checked to false 
-                                                                    end">
+                                                            <input onclick='AlterRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan" hx-put="/cart/users/{{ $user.UserId }}" x-bind:disabled="countAddScanTypes == 0">
                                                         {{ else }}
-                                                            <input onclick='AlterRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan" hx-put="/cart/users/{{ $user.UserId }}"
-                                                            script="on ${{ $i }}roles 
-                                                                        if ${{ $i }} is 0 
-                                                                            add @disabled then set me.checked to false 
-                                                                        else 
-                                                                            remove @disabled then set me.checked to true 
-                                                                        end 
-                                                                    on ${{ $i }}nany 
-                                                                        set me.checked to false 
-                                                                    end">
+                                                            <input onclick='AlterRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan" hx-put="/cart/users/{{ $user.UserId }}" x-bind:disabled="countAddScanTypes == 0">
                                                         {{ end }}
                                                 </div>
                                             {{ end }}

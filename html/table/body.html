@@ -79,9 +79,9 @@
                                                     <div>
                                                         <span>{{ .RoleDescription }}</span>
                                                         {{ if ne .RoleName "extsubmitanyscan"}}
-                                                            <input onclick='AlterRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan" hx-put="/cart/users/{{ $user.UserId }}" x-bind:disabled="countAddScanTypes == 0">
+                                                            <input onclick='AlterRow("tr-{{ $i }}"); NanyScanClicked(this, "{{ $user.UserId }}");' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type not-any-scan" hx-put="/cart/users/{{ $user.UserId }}" x-bind:disabled="countAddScanTypes == 0">
                                                         {{ else }}
-                                                            <input onclick='AlterRow("tr-{{ $i }}")' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan" hx-put="/cart/users/{{ $user.UserId }}" x-bind:disabled="countAddScanTypes == 0">
+                                                            <input onclick='AlterRow("tr-{{ $i }}"); AnyScanClicked(this, "{{ $user.UserId }}");' type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}-{{ $user.UserId }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class= "roles-{{ $user.UserId }} scan-type any-scan" hx-put="/cart/users/{{ $user.UserId }}" x-bind:disabled="countAddScanTypes == 0">
                                                         {{ end }}
                                                 </div>
                                             {{ end }}

@@ -123,6 +123,38 @@
             $(el).closest(".modal").hide();
         }
 
+        function CheckScanTypesEmpty(userId){
+            var isEmpty = true
+            $(".scan-type.roles-" + userId).each(function() {
+                    if ($(this).is(":checked")){
+                        isEmpty = false
+                    }
+            });
+
+            console.log("CheckSanTypesEmpty() -> isEmpty = "+ isEmpty);
+            if (isEmpty){
+                $("#extsubmitanyscan-" + userId).prop("checked", true);
+            }
+        }
+        
+        function AnyScanClicked(el, userId){
+            if ($(el).is(":checked")){
+                $(".not-any-scan.roles-" + userId).each(function() {
+                    $(this).val([]);
+                });
+            } else {
+                CheckScanTypesEmpty(userId);
+            }
+        }
+
+        function NanyScanClicked(el, userId) {
+            if ($(el).is(":checked")){
+                $("#extsubmitanyscan-" + userId).val([]);
+            } else {
+                CheckScanTypesEmpty(userId);
+            }
+        }
+        
         window.onclick = function(event) {
             CloseAnyModal();
         }

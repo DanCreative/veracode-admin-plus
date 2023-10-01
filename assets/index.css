@@ -227,3 +227,16 @@ html {
     text-decoration: none;
     cursor: pointer;    
 }
+
+.modal-body>div {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body>div>div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 60px;
+    margin-right: 60px;
+}

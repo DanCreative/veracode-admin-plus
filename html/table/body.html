@@ -5,9 +5,13 @@
             <tr {{ if $user.Altered}}class="altered"{{ end }} id="tr-{{ $i }}" hx-include=".roles-{{ $user.UserId }}"  
             x-data="{
                 countAddScanTypes : {{ $user.CountScanTypeAdders }},
-                addersClicked(el) {
+                addersClicked(el, userId) {
                     if (el.checked) {
                         this.countAddScanTypes += 1;
+
+                        if (this.countAddScanTypes == 1){
+                            CheckScanTypesEmpty(userId);
+                        }
                     } else {
                         this.countAddScanTypes -= 1;
                     }
@@ -44,7 +48,7 @@
                     {{ range $user.Roles}}
                         {{ if not .IsScanType}}
                             {{ if .IsAddScanTypes }}
-                                <td><input type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }} roles-add-{{ $user.UserId }}" hx-put="/cart/users/{{ $user.UserId }}" @click="addersClicked($el)" onclick="AlterRow('tr-{{ $i }}')">
+                                <td><input type="checkbox" name="{{ .RoleName }}" id="{{ .RoleName }}" {{ if .IsChecked }} checked {{ end }} {{ if .IsDisabled }} disabled {{ end }} class="roles-{{ $user.UserId }} roles-add-{{ $user.UserId }}" hx-put="/cart/users/{{ $user.UserId }}" @click="addersClicked($el, '{{ $user.UserId }}')" onclick="AlterRow('tr-{{ $i }}')">
                                 </td>
                             {{ else }}
                                 <td>

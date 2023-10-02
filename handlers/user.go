@@ -277,9 +277,19 @@ func (u *UserHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
 
 	errs := u.client.BulkPutPartialUsers(u.cartHandler.cart)
 	if len(errs) > 0 {
+		msg := "An error has occurred while trying to update the following users: "
+		for k, err := range errs {
+			uerr, _ := err.(*veracode.UserError)
+			if k == 0 {
+				msg += uerr.UserId
+			} else {
+				msg += ", " + uerr.UserId
+			}
+
+		}
 		message = models.Result{
 			IsSuccess: false,
-			Message:   "An error has occurred while trying to update the user(s)",
+			Message:   msg,
 		}
 	}
 

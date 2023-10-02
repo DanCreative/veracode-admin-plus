@@ -71,37 +71,14 @@
             {{ else }}
                 <button {{ if not .HasChanges }}disabled{{ end }} hx-vals='{"cart": "Yes"}' hx-get="/users" hx-trigger="click" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" class="cart-controls">Show</button>
             {{ end }}
-            <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body"
+            <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-submit-button" hx-post="/cart/submit" hx-indicator="#load-body" hx-target="#container" hx-swap="innerHTML"
                 script="on htmx:confirm(issueRequest)
                             halt the event
                             call Swal.fire({title: 'Confirm', text:'Do you want to continue?'})
                             if result.isConfirmed issueRequest()
-                        end    
-                        on htmx:responseError
-                            call Swal.fire({icon: 'error', title: 'Oops...', text: 'Something went wrong while trying to update the users!'})
-                            then send change to #users-1-page-number
-                        end
-                        on htmx:afterOnLoad
-                            call Swal.fire({icon: 'success', title: 'Whoop! Whoop!', text: 'Users updated successfully!'})
-                            then send change to #users-1-page-number
                         end">Submit
             </button>
-            <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-clear-button" hx-delete="/cart" hx-indicator="#load-body" 
-                script="on htmx:confirm(issueRequest)
-                            halt the event
-                            call Swal.fire({title: 'Confirm', text:'Do you want to continue?'})
-                            if result.isConfirmed issueRequest()
-                        end    
-                        on htmx:responseError
-                            call Swal.fire({icon: 'error', title: 'Oops...', text: 'Something went wrong while trying to clear the cart!'})
-                            
-                            then send change to #users-1-page-number
-                        end
-                        on htmx:afterOnLoad
-                            call Swal.fire({icon: 'success', title: 'Whoop! Whoop!', text: 'Users cleared successfully!'})
-                            then send change to #users-1-page-number
-                        end">Clear
-            </button>
+            <button class="cart-controls" {{ if not .HasChanges }}disabled{{ end }} id="cart-clear-button" hx-delete="/cart" hx-indicator="#load-body" hx-target="#container" hx-swap="innerHTML">Clear</button>
         </div>
     </div>
 </div>

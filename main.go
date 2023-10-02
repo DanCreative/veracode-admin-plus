@@ -52,6 +52,7 @@ func main() {
 		"html/table/headers.html",
 		"html/table/controls.html",
 		"html/table/title.html",
+		"html/table/message.html",
 	)
 	check(err)
 

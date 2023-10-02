@@ -184,6 +184,12 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 
 	go u.client.GetTeamsAsync(chTeams)
 
+	message := models.Result{}
+	ctxV, ok := r.Context().Value(models.ContextKey("Result")).(models.Result)
+	if ok {
+		message = ctxV
+	}
+
 	q := r.URL.Query()
 	u.updateQuery(q)
 	logrus.Debug(u.query)
@@ -244,6 +250,7 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 		Filters    []models.Filter
 		ShowCart   bool
 		HasChanges bool
+		Message    models.Result
 	}{
 		Users:      users,
 		Teams:      teams,
@@ -252,6 +259,7 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 		Filters:    filters,
 		ShowCart:   u.query.Has("cart"),
 		HasChanges: len(u.cartHandler.cart) > 0,
+		Message:    message,
 	}
 
 	u.table.Execute(w, data)

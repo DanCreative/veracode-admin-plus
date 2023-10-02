@@ -11,7 +11,7 @@
         <b>{{ .Message }}</b>
     </div>
     <div>
-        <span class="alert-close">&times;</span>
+        <span class="alert-close" onclick="$(this).closest('.alert').remove();">&times;</span>
     </div>
 </div>
 {{ end }}

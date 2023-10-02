@@ -107,26 +107,6 @@ func (c *CartHandler) getCachedUser(userId string) (models.User, error) {
 func (c *CartHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
-// DeleteUsers handler clears the cart
-func (c *CartHandler) DeleteUsers(w http.ResponseWriter, r *http.Request) {
-	c.ClearCart()
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// SubmitCart calls the Veracode API to bulk update all of the users from the cart
-func (c *CartHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
-	errs := c.client.BulkPutPartialUsers(c.cart)
-	if len(errs) > 0 {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	c.ClearCart()
-
-	w.WriteHeader(http.StatusNoContent)
-	logrus.WithFields(logrus.Fields{"Function": "SubmitCart"}).Info("Cart submitted")
-}
-
 func (c *CartHandler) ClearCart() {
 	clear(c.cart)
 	logrus.WithFields(logrus.Fields{"Function": "ClearCart"}).Infof("Cart cleared: %v", c.cart)

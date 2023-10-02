@@ -78,8 +78,8 @@ func main() {
 	})
 
 	router.Route("/cart", func(r chi.Router) {
-		r.Post("/submit", cartHandler.SubmitCart)
-		r.Delete("/", cartHandler.DeleteUsers)
+		r.Post("/submit", userHandler.SubmitCart)
+		r.Delete("/", userHandler.DeleteUsers)
 
 		r.Route("/users", func(r chi.Router) {
 			r.Route("/{userID}", func(r chi.Router) {

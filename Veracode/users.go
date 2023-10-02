@@ -137,17 +137,20 @@ func (c *Client) GetUser(userId string) (models.User, error) {
 
 // PutPartialUser updates a user by ID
 func (c *Client) PutPartialUser(userId string, user models.User) error {
+	url := fmt.Sprintf("%susers/%s?partial=true", c.BaseURL, userId)
+	method := "PUT"
+
 	reqBody, err := json.Marshal(user)
 	if err != nil {
 		logrus.Error(err)
-		return err
+		return &UserError{err: err}
 	}
-	logrus.Debug(string(reqBody))
+	//logrus.Debug(string(reqBody))
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%susers/%s?partial=true", c.BaseURL, userId), bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		logrus.Error(err)
-		return err
+		return &UserError{err: err}
 	}
 
 	logrus.WithFields(logrus.Fields{"Function": "PutPartialUser"}).Infof("%s %s", req.Method, req.URL)
@@ -155,19 +158,29 @@ func (c *Client) PutPartialUser(userId string, user models.User) error {
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		logrus.Error(err)
-		return err
+		return &UserError{err: err}
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Error(err)
-		return err
+		return &UserError{err: err}
 	}
 
 	if resp.StatusCode != 200 {
-		err = fmt.Errorf("API error. http code: %v. Response Body: %s", resp.Status, string(body))
-		logrus.Error(err)
-		return err
+		uerr := UserError{}
+		err := json.Unmarshal(body, &uerr)
+		if err != nil {
+			logrus.Error(err)
+			return &UserError{err: err}
+		}
+
+		uerr.Method = method
+		uerr.Url = url
+		uerr.UserId = userId
+
+		logrus.Error(uerr)
+		return &uerr
 	}
 
 	logrus.Infof("Successfully updated user: %s", userId)

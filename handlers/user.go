@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"math"
@@ -184,6 +185,12 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 
 	go u.client.GetTeamsAsync(chTeams)
 
+	message := models.Result{}
+	ctxV, ok := r.Context().Value(models.ContextKey("Result")).(models.Result)
+	if ok {
+		message = ctxV
+	}
+
 	q := r.URL.Query()
 	u.updateQuery(q)
 	logrus.Debug(u.query)
@@ -244,6 +251,7 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 		Filters    []models.Filter
 		ShowCart   bool
 		HasChanges bool
+		Message    models.Result
 	}{
 		Users:      users,
 		Teams:      teams,
@@ -252,7 +260,50 @@ func (u *UserHandler) GetTable(w http.ResponseWriter, r *http.Request) {
 		Filters:    filters,
 		ShowCart:   u.query.Has("cart"),
 		HasChanges: len(u.cartHandler.cart) > 0,
+		Message:    message,
 	}
 
 	u.table.Execute(w, data)
+}
+
+// SubmitCart calls the Veracode API to bulk update all of the users from the cart
+// Also calls the GetTable handler and adds its result to the context where GetTable
+// can handle it
+func (u *UserHandler) SubmitCart(w http.ResponseWriter, r *http.Request) {
+	message := models.Result{
+		IsSuccess: true,
+		Message:   "User(s) updated succcessfully",
+	}
+
+	errs := u.client.BulkPutPartialUsers(u.cartHandler.cart)
+	if len(errs) > 0 {
+		msg := "An error has occurred while trying to update the following users: "
+		for k, err := range errs {
+			uerr, _ := err.(*veracode.UserError)
+			if k == 0 {
+				msg += uerr.UserId
+			} else {
+				msg += ", " + uerr.UserId
+			}
+
+		}
+		message = models.Result{
+			IsSuccess: false,
+			Message:   msg,
+		}
+	}
+
+	u.cartHandler.ClearCart()
+
+	//logrus.WithFields(logrus.Fields{"Function": "SubmitCart"}).Info("Cart submitted")
+
+	ctx := context.WithValue(r.Context(), models.ContextKey("Result"), message)
+	u.GetTable(w, r.WithContext(ctx))
+}
+
+// DeleteUsers handler clears the cart
+// Also calls the GetTable handler afterwards
+func (u *UserHandler) DeleteUsers(w http.ResponseWriter, r *http.Request) {
+	u.cartHandler.ClearCart()
+	u.GetTable(w, r)
 }

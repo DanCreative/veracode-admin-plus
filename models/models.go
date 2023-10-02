@@ -2,6 +2,13 @@ package models
 
 import "encoding/json"
 
+type ContextKey string
+
+type Result struct {
+	Message   string
+	IsSuccess bool
+}
+
 type Role struct {
 	RoleId          string `json:"role_id,omitempty"`
 	RoleName        string `json:"role_name,omitempty"`

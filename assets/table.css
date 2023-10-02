@@ -1,6 +1,9 @@
 :root {
     --border-color: #dee2e6!important;
     --border-radius-large: 0.375rem;
+
+    --alert-success-colour: #8ac72e;
+    --alert-fail-colour: #e61f25;
 }
 
 table {
@@ -178,4 +181,55 @@ select:invalid{
 .teamadmin-role>svg.active {
     cursor: pointer;
     opacity: 100%;
+}
+
+.alert {
+    border: 1px solid var(--alert-fail-colour);
+    border-radius: 3px;
+    transition: opacity 0.6s;
+    margin-bottom: 15px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.alert svg {
+    fill: currentColor;
+    height: 24px;
+    width: 24px;
+}
+
+.alert div:nth-child(1) {
+    background-color: var(--alert-fail-colour);
+    color: white;
+    /* min-height: 60px; */
+    padding: 15px 5px;
+}
+
+.alert div:nth-child(2) {
+    flex: 3 1 auto;
+    padding: 15px;
+}
+
+.alert div:nth-child(3) {
+    padding: 15px;
+}
+
+.alert.success {border: 1px solid var(--alert-success-colour);}
+.alert.success div:nth-child(1) {background-color: var(--alert-success-colour);}
+
+.alert-close {
+    margin-left: 15px;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    color: #ccc;
+}
+
+.alert-close:hover {
+    color: black;
 }

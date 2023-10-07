@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/DanCreative/veracode-admin-plus/handlers"
+	"github.com/DanCreative/veracode-admin-plus/initializers"
 	"github.com/DanCreative/veracode-admin-plus/utils"
 	"github.com/DanCreative/veracode-admin-plus/veracode"
 	"github.com/go-chi/chi/v5"
@@ -22,17 +24,21 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+	// ---------------------- CONFIG ------------------------------
+
+	config, err := initializers.NewConfig()
+	check(err)
 
 	// ---------------------- LOGGING ------------------------------
 
-	logrus.SetLevel(logrus.TraceLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 
 	// ---------------------- CLIENT ------------------------------
 
-	transport, err := veracode.NewAuthTransport(nil)
+	transport, err := veracode.NewAuthTransport(nil, config.Key, config.Secret)
 	check(err)
 
-	client, err := veracode.NewClient("https://api.veracode.eu/api/authn/v2", transport.Client())
+	client, err := veracode.NewClient(config.BaseURL, transport.Client())
 	check(err)
 
 	err = client.GetRoles()
@@ -96,8 +102,9 @@ func main() {
 
 	// ---------------------- START ------------------------------
 
-	utils.OpenBrowser("http://localhost:8082")
-	log.Fatal(http.ListenAndServe("localhost:8082", router))
+	host := fmt.Sprintf("localhost:%d", config.Port)
+	utils.OpenBrowser("http://" + host)
+	log.Fatal(http.ListenAndServe(host, router))
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve

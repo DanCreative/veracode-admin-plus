@@ -24,3 +24,14 @@ Parameter | Default Value | Description
 |-r Region | com | Set the region where your organization's Veracode account data is hosted. Possible values: eu, com or us.
 |-p Port | 8080 | Set the port on which the utility will run.
 |-s Save | false | Passing the -s flag, will save the region and port values to the profile. This can be useful in the case that you have different profiles for different instances of Veracode in different regions. Once the configuration values are saved, you don't have to continue to pass them as command line arguments. 
+
+## Technologies
+### Frontend
+- Vanilla HTML, CSS and Javascript
+- HTMX
+- AlpineJS
+- JQuery
+- Hyperscript
+### Backend
+- Go
+- chi

@@ -6,7 +6,7 @@ Make changes to one or more users | Optionally view all of the changes | Submit 
 <img src="./docs/assets/changes.gif" height="150"/> | <img src="./docs/assets/view_cart.gif" height="150"/> | <img src="./docs/assets/submit_cart.gif" height="150"/>
 
 ## Features
-- **It's fast:** Asynchronously fetches and updates users. (Also its a GO application😉)
+- **It's fast:** Asynchronously fetches and updates users in bulk. (Also its a Go application😉)
 - **Filtering:** All filtering available on the official Veracode UI, is available in this utility.
 
 ## Getting Started

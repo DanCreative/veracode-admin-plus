@@ -6,7 +6,7 @@ Make changes to one or more users | Optionally view all of the changes | Submit 
 <img src="./docs/assets/changes.gif" height="150"/> | <img src="./docs/assets/view_cart.gif" height="150"/> | <img src="./docs/assets/submit_cart.gif" height="150"/>
 
 ## Features
-- **It's fast:** Asynchronously fetches and updates users. (Also its a GO application😉)
+- **It's fast:** Asynchronously fetches and updates users in bulk. (Also its a Go application😉)
 - **Filtering:** All filtering available on the official Veracode UI, is available in this utility.
 
 ## Getting Started
@@ -24,3 +24,14 @@ Parameter | Default Value | Description
 |-r Region | com | Set the region where your organization's Veracode account data is hosted. Possible values: eu, com or us.
 |-p Port | 8080 | Set the port on which the utility will run.
 |-s Save | false | Passing the -s flag, will save the region and port values to the profile. This can be useful in the case that you have different profiles for different instances of Veracode in different regions. Once the configuration values are saved, you don't have to continue to pass them as command line arguments. 
+
+## Technologies
+### Frontend
+- Vanilla HTML, CSS and Javascript
+- HTMX
+- AlpineJS
+- JQuery
+- Hyperscript
+### Backend
+- Go
+- chi

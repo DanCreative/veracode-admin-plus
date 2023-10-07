@@ -12,7 +12,7 @@ Make changes to one or more users | Optionally view all of the changes | Submit 
 ## Getting Started
 ### Installation
 0. Download and install go from: https://go.dev/doc/install
-1. Open a terminal and run command: ```go install -o vap.exe```
+1. Open a terminal and run command: ```go install "github.com/DanCreative/veracode-admin-plus"```
 
 ### Configuration
 1. **Veracode Admin Plus** makes use of the same Veracode API credential file pattern that the other Veracode utilities use. This is handy, because it means that you can manage all of your API credentials in the same place. Please follow the Veracode documentation to create a new API credentials file if you don't have one already ([Windows](https://docs.veracode.com/r/t_configure_credentials_windows)/[macOS or Linux](https://docs.veracode.com/r/t_configure_credentials_mac)).

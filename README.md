@@ -17,7 +17,7 @@ Make changes to one or more users | Optionally view all of the changes | Submit 
 ### Configuration
 1. **Veracode Admin Plus** makes use of the same Veracode API credential file pattern that the other Veracode utilities use. This is handy, because it means that you can manage all of your API credentials in the same place. Please follow the Veracode documentation to create a new API credentials file if you don't have one already ([Windows](https://docs.veracode.com/r/t_configure_credentials_windows)/[macOS or Linux](https://docs.veracode.com/r/t_configure_credentials_mac)).
 2. If you have more than one profile, you can set the ```VERACODE_API_PROFILE``` environment variable to switch between them. This works in the same way as the HTTPie Veracode authentication library's [multipe profiles](https://docs.veracode.com/r/c_httpie_tool#using-multiple-profiles) feature.
-3. **Veracode Admin Plus** On the initial execution of the application, pass below configuration values. Example: ```vap -p 8082 -r "us" -s```.
+3. **Veracode Admin Plus** On the initial execution of the application, pass below configuration values. Example: ```veracode-admin-plus.exe -p 8082 -r "us" -s```.
    
 Parameter | Default Value | Description
 :--:|:--:|:--:

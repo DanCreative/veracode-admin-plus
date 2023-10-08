@@ -15,7 +15,7 @@ Make changes to one or more users | Optionally view all of the changes | Submit 
 
 <img src="./docs/assets/manage_teams.gif" height="150"/>
 
-- **Scan Types:** Set the scan types that the user can interact if they have specific roles. 
+- **Scan Types:** Set the scan types that the user can interact with if they have specific roles. 
 
 <img src="./docs/assets/scan_types.gif" height="150"/>
 

@@ -9,6 +9,16 @@ Make changes to one or more users | Optionally view all of the changes | Submit 
 - **It's fast:** Asynchronously fetches and updates users in bulk. (Also its a Go application😉)
 - **Filtering:** All filtering available on the official Veracode UI, is available in this utility.
 
+<img src="./docs/assets/filters.gif" height="150"/>
+
+- **Manage Teams:** Set the teams that the user is a member of and the teams that the user can manage if they have the **Team Admin** role.
+
+<img src="./docs/assets/manage_teams.gif" height="150"/>
+
+- **Scan Types:** Set the scan types that the user can interact if they have specific roles. 
+
+<img src="./docs/assets/scan_types.gif" height="150"/>
+
 ## Getting Started
 ### Installation
 0. Download and install go from: https://go.dev/doc/install

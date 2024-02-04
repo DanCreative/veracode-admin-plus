@@ -1,5 +1,7 @@
 github.com/DanCreative/veracode-go v0.1.0 h1:MBfpE8zLm2/qBfUXxn7e7vchVwEy6Tz1u9M2Jw9RfYc=
 github.com/DanCreative/veracode-go v0.1.0/go.mod h1:bylvDnlTanC1RdwvDCJG6uezfrb3DBYny/tiU3fJmcc=
+github.com/DanCreative/veracode-go v0.1.1 h1:7mwjcUwqzupL3EunWEvW1VgbrTjwpQmVhuF/r1K/WCA=
+github.com/DanCreative/veracode-go v0.1.1/go.mod h1:bylvDnlTanC1RdwvDCJG6uezfrb3DBYny/tiU3fJmcc=
 github.com/DanCreative/veracode-hmac-go v1.0.0 h1:jOesTnYly4cBEK2Y6KDJUXpg0OHOQqvVVeMp3SWtQuQ=
 github.com/DanCreative/veracode-hmac-go v1.0.0/go.mod h1:dMGKQOAcjafKOZqLMAPTB5qqPVp8oP2+fb6Hf9co7bg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

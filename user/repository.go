@@ -17,7 +17,7 @@ type UserLocalRepository interface {
 	UpdateUser(ctx context.Context, userId string, user User) error
 
 	// Get all users that have been modified and are in the cart
-	GetCartUsers(ctx context.Context) ([]User, error)
+	GetCartUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error)
 
 	// Remove user from the cart
 	RemoveCartUser(ctx context.Context, userId string) error

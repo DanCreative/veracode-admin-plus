@@ -4,6 +4,8 @@ import (
 	"context"
 )
 
+var _ UserService = &service{}
+
 type UserService interface {
 	GetAggregatedUsers(ctx context.Context, urlValues string) ([]User, PageMeta, error)
 	SubmitUsers(ctx context.Context, users []User) error
@@ -13,7 +15,7 @@ type UserService interface {
 
 type service struct {
 	userBackendRepo IdentityRepository
-	userLocalRepo   UserLocalRepository
+	userLocalRepo   IdentityLocalRepository
 }
 
 // TODO: Implement body
@@ -36,9 +38,9 @@ func (s *service) GetTeams(ctx context.Context) ([]Team, error) {
 	return nil, nil
 }
 
-func NewUserService(identityRepo IdentityRepository, localUserRepo UserLocalRepository) UserService {
+func NewUserService(identityRepo IdentityRepository, identityLocalRepo IdentityLocalRepository) UserService {
 	return &service{
 		userBackendRepo: identityRepo,
-		userLocalRepo:   localUserRepo,
+		userLocalRepo:   identityLocalRepo,
 	}
 }

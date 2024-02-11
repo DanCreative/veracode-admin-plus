@@ -9,7 +9,7 @@ type IdentityRepository interface {
 	GetAllTeams(ctx context.Context) ([]Team, error)
 }
 
-type UserLocalRepository interface {
+type IdentityLocalRepository interface {
 	// Add users to local cache
 	AddUsers(ctx context.Context, users []User) error
 
@@ -25,6 +25,12 @@ type UserLocalRepository interface {
 	// Clear the user cart
 	ClearCart(ctx context.Context) error
 
-	// Get user from either cache or cart
+	// Get user from local
 	GetUser(ctx context.Context, userId string) (User, error)
+
+	// Get all local roles
+	GetAllRoles(ctx context.Context) ([]Role, error)
+
+	// Get all local teams
+	GetAllTeams(ctx context.Context) ([]Team, error)
 }

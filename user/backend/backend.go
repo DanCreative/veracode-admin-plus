@@ -11,6 +11,8 @@ import (
 	"github.com/DanCreative/veracode-go/veracode"
 )
 
+var _ user.IdentityRepository = &BackendRepository{}
+
 type BackendRepository struct {
 	client *veracode.Client
 }
@@ -105,17 +107,16 @@ func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options 
 		aggregatedUsers[userOrder[user.UserId]] = *user
 	}
 
-	return aggregatedUsers, user.PageMeta{
-		PageNumber:    resp.Page.Number,
-		Size:          resp.Page.Size,
-		TotalElements: resp.Page.TotalElements,
-		TotalPages:    resp.Page.TotalPages,
-		First:         resp.Links.First.HrefURL,
-		Last:          resp.Links.Last.HrefURL,
-		Next:          resp.Links.Next.HrefURL,
-		Prev:          resp.Links.Prev.HrefURL,
-		Self:          resp.Links.Self.HrefURL,
-	}, nil
+	return aggregatedUsers, user.NewPageMeta(
+		resp.Page.Number,
+		resp.Page.Size,
+		resp.Page.TotalElements,
+		resp.Page.TotalPages,
+		resp.Links.First.HrefURL,
+		resp.Links.Last.HrefURL,
+		resp.Links.Next.HrefURL,
+		resp.Links.Prev.HrefURL,
+		resp.Links.Self.HrefURL), nil
 }
 
 // BulkUpdateUsers updates multiple users async

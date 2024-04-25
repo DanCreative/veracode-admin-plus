@@ -19,7 +19,6 @@ var (
 
 type UserLocalMemRepository struct {
 	roleCache []user.Role
-	teamCache []user.Team
 	userCache map[string]user.User
 	userCart  map[string]user.User
 	muCache   sync.Mutex
@@ -52,11 +51,6 @@ func (ulr *UserLocalMemRepository) GetUser(ctx context.Context, userId string) (
 // GetAllRoles gets all local roles
 func (ulr *UserLocalMemRepository) GetAllRoles(ctx context.Context) ([]user.Role, error) {
 	return ulr.roleCache, nil
-}
-
-// GetAllTeams gets all local teams
-func (ulr *UserLocalMemRepository) GetAllTeams(ctx context.Context) ([]user.Team, error) {
-	return ulr.teamCache, nil
 }
 
 // Update cached user and move it to the cart
@@ -160,5 +154,10 @@ func (ulr *UserLocalMemRepository) ClearCart(ctx context.Context) error {
 	defer ulr.muCart.Unlock()
 
 	clear(ulr.userCart)
+	return nil
+}
+
+func (ulr *UserLocalMemRepository) SetRoles(ctx context.Context, roles []user.Role) error {
+	ulr.roleCache = roles
 	return nil
 }

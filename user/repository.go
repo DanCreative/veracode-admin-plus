@@ -31,6 +31,6 @@ type IdentityLocalRepository interface {
 	// Get all local roles
 	GetAllRoles(ctx context.Context) ([]Role, error)
 
-	// Get all local teams
-	GetAllTeams(ctx context.Context) ([]Team, error)
+	// Save roles locally roles
+	SetRoles(ctx context.Context, roles []Role) error
 }

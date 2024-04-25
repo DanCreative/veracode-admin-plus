@@ -7,8 +7,8 @@ import (
 var _ UserService = &service{}
 
 type UserService interface {
-	GetAggregatedUsers(ctx context.Context, urlValues string) ([]User, PageMeta, error)
-	SubmitUsers(ctx context.Context, users []User) error
+	GetAggregatedUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error)
+	SubmitUsers(ctx context.Context) []error
 	GetRoles(ctx context.Context) ([]Role, error)
 	GetTeams(ctx context.Context) ([]Team, error)
 }
@@ -18,24 +18,69 @@ type service struct {
 	userLocalRepo   IdentityLocalRepository
 }
 
-// TODO: Implement body
-func (s *service) GetAggregatedUsers(ctx context.Context, urlValues string) ([]User, PageMeta, error) {
-	return nil, PageMeta{}, nil
+// GetAggregatedUsers gets all of the users and their roles and teams
+// If cart value is yes, it gets the data from the cart instead of the veracode backend
+func (s *service) GetAggregatedUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error) {
+	var users []User
+	var pageMeta PageMeta
+	var err error
+
+	// If cart was selected, get all cart users, otherwise get users from the backend
+	if options.Cart == "Yes" {
+		users, pageMeta, err = s.userLocalRepo.GetCartUsers(ctx, options)
+	} else {
+		users, pageMeta, err = s.userBackendRepo.SearchAggregatedUsers(ctx, options)
+	}
+	if err != nil {
+		return nil, PageMeta{}, err
+	}
+
+	// Add users to cache
+	err = s.userLocalRepo.AddUsers(ctx, users)
+	if err != nil {
+		return nil, PageMeta{}, err
+	}
+
+	// Get user from cart and update list of users
+	for k, backendUser := range users {
+		if cartUser, err := s.userLocalRepo.GetUser(ctx, backendUser.UserId); err != nil {
+			users[k] = cartUser
+			users[k].Altered = true
+		}
+	}
+
+	return users, pageMeta, nil
 }
 
-// TODO: Implement body
-func (s *service) SubmitUsers(ctx context.Context, users []User) error {
+// SubmitUsers bulk updates all of the users in the cart.
+func (s *service) SubmitUsers(ctx context.Context) []error {
+	users, _, err := s.userLocalRepo.GetCartUsers(ctx, SearchUserOptions{Cart: "Yes"})
+	if err != nil {
+		return []error{err}
+	}
+
+	updateUsers := make(map[string]User, len(users))
+	for _, user := range users {
+		updateUsers[user.UserId] = user
+	}
+
+	errs := s.userBackendRepo.BulkUpdateUsers(ctx, updateUsers)
+	if errs != nil {
+		return errs
+	}
+
 	return nil
 }
 
-// TODO: Implement body
+// GetRoles gets all of the roles from the local repo.
+// Roles should be stored in the local repo upon init.
 func (s *service) GetRoles(ctx context.Context) ([]Role, error) {
-	return nil, nil
+	return s.userLocalRepo.GetAllRoles(ctx)
 }
 
-// TODO: Implement body
+// GetTeams will always get the teams from the Veracode backend.
 func (s *service) GetTeams(ctx context.Context) ([]Team, error) {
-	return nil, nil
+	return s.userBackendRepo.GetAllTeams(ctx)
 }
 
 func NewUserService(identityRepo IdentityRepository, identityLocalRepo IdentityLocalRepository) UserService {

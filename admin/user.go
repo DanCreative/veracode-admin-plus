@@ -1,4 +1,4 @@
-package user
+package admin
 
 import "net/url"
 
@@ -84,4 +84,24 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 		PrevParams:    prevUrl.RawQuery,
 		SelfParams:    selfUrl.RawQuery,
 	}
+}
+
+// HasRole is a helper method to check whether a user has a specific role based on id.
+func (u *User) HasRole(roleName string) bool {
+	for _, userRole := range u.Roles {
+		if roleName == userRole.RoleName {
+			return true
+		}
+	}
+	return false
+}
+
+// HasTeam is a helper method to check whether a user is part of a specific team based on id.
+func (u *User) HasTeam(teamId string) bool {
+	for _, userTeam := range u.Teams {
+		if teamId == userTeam.TeamId {
+			return true
+		}
+	}
+	return false
 }

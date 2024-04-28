@@ -7,26 +7,34 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/DanCreative/veracode-admin-plus/user"
+	"github.com/DanCreative/veracode-admin-plus/admin"
 	"github.com/gorilla/schema"
 )
 
 var (
-	_ user.IdentityLocalRepository = &UserLocalMemRepository{}
+	_ admin.IdentityLocalRepository = &UserLocalMemRepository{}
 
 	ErrUserNotFound = errors.New("user not found in cart")
 )
 
 type UserLocalMemRepository struct {
-	roleCache []user.Role
-	userCache map[string]user.User
-	userCart  map[string]user.User
+	roleCache []admin.Role
+	userCache map[string]admin.User
+	userCart  map[string]admin.User
 	muCache   sync.Mutex
 	muCart    sync.Mutex
 }
 
+func NewUserLocalMemRepository() *UserLocalMemRepository {
+	return &UserLocalMemRepository{
+		roleCache: make([]admin.Role, 0),
+		userCache: make(map[string]admin.User),
+		userCart:  make(map[string]admin.User),
+	}
+}
+
 // Add users to local cache
-func (ulr *UserLocalMemRepository) AddUsers(ctx context.Context, users []user.User) error {
+func (ulr *UserLocalMemRepository) AddUsers(ctx context.Context, users []admin.User) error {
 	ulr.muCache.Lock()
 	defer ulr.muCache.Unlock()
 
@@ -37,27 +45,28 @@ func (ulr *UserLocalMemRepository) AddUsers(ctx context.Context, users []user.Us
 	return nil
 }
 
-// GetUser gets a user with id from the cart
-func (ulr *UserLocalMemRepository) GetUser(ctx context.Context, userId string) (user.User, error) {
+// GetUser gets a user with id from the cart.
+// GetUser will return 2 values. The first is the object and the second is a bool indicating whether the user was found.
+func (ulr *UserLocalMemRepository) GetUser(ctx context.Context, userId string) (admin.User, bool) {
 	ulr.muCart.Lock()
 	defer ulr.muCart.Unlock()
 
 	if val, ok := ulr.userCart[userId]; ok {
-		return val, nil
+		return val, true
 	}
-	return user.User{}, ErrUserNotFound
+	return admin.User{}, false
 }
 
 // GetAllRoles gets all local roles
-func (ulr *UserLocalMemRepository) GetAllRoles(ctx context.Context) ([]user.Role, error) {
+func (ulr *UserLocalMemRepository) GetAllRoles(ctx context.Context) ([]admin.Role, error) {
 	return ulr.roleCache, nil
 }
 
 // Update cached user and move it to the cart
-func (ulr *UserLocalMemRepository) UpdateUser(ctx context.Context, userId string, dUser user.User) error {
-	cachedUser, err := ulr.GetUser(ctx, userId)
-	if err != nil {
-		return err
+func (ulr *UserLocalMemRepository) UpdateUser(ctx context.Context, userId string, dUser admin.User) error {
+	cachedUser, isFound := ulr.GetUser(ctx, userId)
+	if !isFound {
+		return ErrUserNotFound
 	}
 	cachedUser.Teams = dUser.Teams
 	cachedUser.Roles = dUser.Roles
@@ -71,7 +80,7 @@ func (ulr *UserLocalMemRepository) UpdateUser(ctx context.Context, userId string
 
 // Get all users that have been modified and are in the cart
 // TODO: Sort cart
-func (ulr *UserLocalMemRepository) GetCartUsers(ctx context.Context, options user.SearchUserOptions) ([]user.User, user.PageMeta, error) {
+func (ulr *UserLocalMemRepository) GetCartUsers(ctx context.Context, options admin.SearchUserOptions) ([]admin.User, admin.PageMeta, error) {
 	ulr.muCart.Lock()
 	defer ulr.muCart.Unlock()
 
@@ -108,18 +117,18 @@ func (ulr *UserLocalMemRepository) GetCartUsers(ctx context.Context, options use
 		pparams = getParams(poptions, encoder)
 	}
 
-	totalCartUsers := make([]user.User, 0, totalElements)
+	totalCartUsers := make([]admin.User, 0, totalElements)
 	for _, value := range ulr.userCart {
 		totalCartUsers = append(totalCartUsers, value)
 	}
 
-	pagedUsers := make([]user.User, 0, options.Size)
+	pagedUsers := make([]admin.User, 0, options.Size)
 	for i := options.Page * options.Size; i < int(math.Min(float64((options.Page+1)*options.Size), float64(totalElements))); i++ {
 
 		pagedUsers = append(pagedUsers, totalCartUsers[i])
 	}
 
-	return pagedUsers, user.PageMeta{
+	return pagedUsers, admin.PageMeta{
 		Size:          options.Size,
 		PageNumber:    options.Page,
 		TotalElements: totalElements,
@@ -133,7 +142,7 @@ func (ulr *UserLocalMemRepository) GetCartUsers(ctx context.Context, options use
 }
 
 // getParams is a helper function that converts object to url.Values string
-func getParams(options user.SearchUserOptions, encoder *schema.Encoder) string {
+func getParams(options admin.SearchUserOptions, encoder *schema.Encoder) string {
 	vals := url.Values{}
 	encoder.Encode(&options, vals)
 	return vals.Encode()
@@ -157,7 +166,7 @@ func (ulr *UserLocalMemRepository) ClearCart(ctx context.Context) error {
 	return nil
 }
 
-func (ulr *UserLocalMemRepository) SetRoles(ctx context.Context, roles []user.Role) error {
+func (ulr *UserLocalMemRepository) SetRoles(ctx context.Context, roles []admin.Role) error {
 	ulr.roleCache = roles
 	return nil
 }

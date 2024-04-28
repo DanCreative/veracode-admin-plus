@@ -5,11 +5,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DanCreative/veracode-admin-plus/user"
+	"github.com/DanCreative/veracode-admin-plus/admin"
 )
 
 func setup() *UserLocalMemRepository {
-	cart := map[string]user.User{
+	cart := map[string]admin.User{
 		"0":  {UserId: "0", EmailAddress: "0@example.com"},
 		"1":  {UserId: "1", EmailAddress: "1@example.com"},
 		"2":  {UserId: "2", EmailAddress: "2@example.com"},
@@ -34,21 +34,21 @@ func setup() *UserLocalMemRepository {
 func TestUserLocalMemRepository_GetCartUsers(t *testing.T) {
 	type args struct {
 		ctx     context.Context
-		options user.SearchUserOptions
+		options admin.SearchUserOptions
 	}
 	tests := []struct {
 		name    string
 		ulr     *UserLocalMemRepository
 		args    args
-		want    []user.User
-		want1   user.PageMeta
+		want    []admin.User
+		want1   admin.PageMeta
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 		{
 			name: "cart_page_1",
 			ulr:  setup(),
-			want1: user.PageMeta{
+			want1: admin.PageMeta{
 				PageNumber:    0,
 				Size:          10,
 				TotalElements: 12,
@@ -58,12 +58,12 @@ func TestUserLocalMemRepository_GetCartUsers(t *testing.T) {
 				SelfParams:    "cart=Yes&page=0&size=10",
 				NextParams:    "cart=Yes&page=1&size=10",
 			},
-			args: args{ctx: context.Background(), options: user.SearchUserOptions{
+			args: args{ctx: context.Background(), options: admin.SearchUserOptions{
 				Page: 0,
 				Size: 10,
 				Cart: "Yes",
 			}},
-			want: []user.User{
+			want: []admin.User{
 				{UserId: "0", EmailAddress: "0@example.com"},
 				{UserId: "1", EmailAddress: "1@example.com"},
 				{UserId: "2", EmailAddress: "2@example.com"},

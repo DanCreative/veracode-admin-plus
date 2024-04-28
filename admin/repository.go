@@ -1,4 +1,4 @@
-package user
+package admin
 
 import "context"
 
@@ -26,7 +26,7 @@ type IdentityLocalRepository interface {
 	ClearCart(ctx context.Context) error
 
 	// Get user from local
-	GetUser(ctx context.Context, userId string) (User, error)
+	GetUser(ctx context.Context, userId string) (User, bool)
 
 	// Get all local roles
 	GetAllRoles(ctx context.Context) ([]Role, error)

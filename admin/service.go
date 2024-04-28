@@ -1,4 +1,4 @@
-package user
+package admin
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func (s *service) GetAggregatedUsers(ctx context.Context, options SearchUserOpti
 
 	// Get user from cart and update list of users
 	for k, backendUser := range users {
-		if cartUser, err := s.userLocalRepo.GetUser(ctx, backendUser.UserId); err != nil {
+		if cartUser, isFound := s.userLocalRepo.GetUser(ctx, backendUser.UserId); isFound {
 			users[k] = cartUser
 			users[k].Altered = true
 		}
@@ -83,7 +83,7 @@ func (s *service) GetTeams(ctx context.Context) ([]Team, error) {
 	return s.userBackendRepo.GetAllTeams(ctx)
 }
 
-func NewUserService(identityRepo IdentityRepository, identityLocalRepo IdentityLocalRepository) UserService {
+func NewUserService(identityRepo IdentityRepository, identityLocalRepo IdentityLocalRepository) *service {
 	return &service{
 		userBackendRepo: identityRepo,
 		userLocalRepo:   identityLocalRepo,

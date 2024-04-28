@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DanCreative/veracode-admin-plus/user"
+	"github.com/DanCreative/veracode-admin-plus/admin"
 	"github.com/DanCreative/veracode-go/veracode"
 )
 
-var _ user.IdentityRepository = &BackendRepository{}
+var _ admin.IdentityRepository = &BackendRepository{}
 
 type BackendRepository struct {
 	client *veracode.Client
@@ -59,7 +59,7 @@ func NewBasicBackendRepository(region string) (*BackendRepository, error) {
 }
 
 // SearchAggregatedUsers returns a list of users with each of their roles
-func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options user.SearchUserOptions) ([]user.User, user.PageMeta, error) {
+func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options admin.SearchUserOptions) ([]admin.User, admin.PageMeta, error) {
 	summaryUsers, resp, err := br.client.Identity.SearchUsers(ctx, veracode.SearchUserOptions{
 		Detailed:     options.Detailed,
 		Page:         options.Page,
@@ -75,17 +75,17 @@ func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options 
 	})
 
 	if err != nil {
-		return nil, user.PageMeta{}, err
+		return nil, admin.PageMeta{}, err
 	}
 
 	userOrder := make(map[string]int, len(summaryUsers))
-	aggregatedUsers := make([]user.User, len(summaryUsers))
+	aggregatedUsers := make([]admin.User, len(summaryUsers))
 
 	for k, v := range summaryUsers {
 		userOrder[v.UserId] = k
 	}
 
-	userMap := make(map[string]*user.User)
+	userMap := make(map[string]*admin.User)
 
 	var wg sync.WaitGroup
 
@@ -107,7 +107,7 @@ func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options 
 		aggregatedUsers[userOrder[user.UserId]] = *user
 	}
 
-	return aggregatedUsers, user.NewPageMeta(
+	return aggregatedUsers, admin.NewPageMeta(
 		resp.Page.Number,
 		resp.Page.Size,
 		resp.Page.TotalElements,
@@ -120,14 +120,14 @@ func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options 
 }
 
 // BulkUpdateUsers updates multiple users async
-func (br *BackendRepository) BulkUpdateUsers(ctx context.Context, users map[string]user.User) []error {
+func (br *BackendRepository) BulkUpdateUsers(ctx context.Context, users map[string]admin.User) []error {
 	chError := make(chan error, len(users))
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
 	for k, v := range users {
 		wg.Add(1)
-		go func(userId string, user user.User, ch chan error) {
+		go func(userId string, user admin.User, ch chan error) {
 			vUser := userToVeracode(user, userId)
 			p := true
 			_, _, err := br.client.Identity.UpdateUser(ctx, vUser, veracode.UpdateOptions{Partial: &p})
@@ -155,13 +155,13 @@ func (br *BackendRepository) BulkUpdateUsers(ctx context.Context, users map[stri
 }
 
 // GetAllRoles takes a Context and returns a list of user.Role. Currently max page size is set to 100.
-func (br *BackendRepository) GetAllRoles(ctx context.Context) ([]user.Role, error) {
+func (br *BackendRepository) GetAllRoles(ctx context.Context) ([]admin.Role, error) {
 	vroles, _, err := br.client.Identity.ListRoles(ctx, veracode.PageOptions{Size: 100})
 	if err != nil {
 		return nil, err
 	}
 
-	droles := make([]user.Role, len(vroles))
+	droles := make([]admin.Role, len(vroles))
 	for k, role := range vroles {
 		droles[k].IsApi = role.IsApi
 		droles[k].IsScanType = role.IsScanType
@@ -173,13 +173,13 @@ func (br *BackendRepository) GetAllRoles(ctx context.Context) ([]user.Role, erro
 }
 
 // GetAllTeams takes a Context and returns a list of user.Team. Currently max page size is set to 100.
-func (br *BackendRepository) GetAllTeams(ctx context.Context) ([]user.Team, error) {
+func (br *BackendRepository) GetAllTeams(ctx context.Context) ([]admin.Team, error) {
 	vteams, _, err := br.client.Identity.ListTeams(ctx, veracode.ListTeamOptions{Size: 100})
 	if err != nil {
 		return nil, err
 	}
 
-	dteams := make([]user.Team, len(vteams))
+	dteams := make([]admin.Team, len(vteams))
 	for k, team := range vteams {
 		dteams[k].TeamId = team.TeamId
 		dteams[k].TeamLegacyId = team.TeamLegacyId
@@ -190,7 +190,7 @@ func (br *BackendRepository) GetAllTeams(ctx context.Context) ([]user.Team, erro
 	return dteams, nil
 }
 
-func userToVeracode(user user.User, userId string) *veracode.User {
+func userToVeracode(user admin.User, userId string) *veracode.User {
 	vRoles := make([]veracode.Role, len(user.Roles))
 	vTeams := make([]veracode.Team, len(user.Teams))
 
@@ -210,9 +210,9 @@ func userToVeracode(user user.User, userId string) *veracode.User {
 	}
 }
 
-func veracodeToUser(vUser *veracode.User) *user.User {
-	uRoles := make([]user.Role, len(*vUser.Roles))
-	uTeams := make([]user.Team, len(*vUser.Teams))
+func veracodeToUser(vUser *veracode.User) *admin.User {
+	uRoles := make([]admin.Role, len(*vUser.Roles))
+	uTeams := make([]admin.Team, len(*vUser.Teams))
 
 	for k, role := range *vUser.Roles {
 		uRoles[k].RoleId = role.RoleId
@@ -223,7 +223,7 @@ func veracodeToUser(vUser *veracode.User) *user.User {
 		uTeams[k].Relationship = team.Relationship.Name
 	}
 
-	return &user.User{
+	return &admin.User{
 		UserId:       vUser.UserId,
 		EmailAddress: vUser.EmailAddress,
 		AccountType:  vUser.AccountType,

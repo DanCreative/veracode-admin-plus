@@ -1,0 +1,110 @@
+package admin
+
+templ PageUsers() {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Veracode Admin Plus</title>
+			<link rel="stylesheet" href="/assets/chosen.min.css"/>
+			<link rel="stylesheet" href="/assets/index.css"/>
+			<link rel="stylesheet" href="/assets/table.css"/>
+			<script src="/assets/users.js"></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
+			<script src="https://unpkg.com/htmx.org@1.9.3"></script>
+			<script src="/assets/jquery-3.7.0.min.js"></script>
+			<script src="/assets/chosen.jquery.min.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+		</head>
+		<body>
+			<div id="container" class="container" hx-disinherit="*" hx-get="/api/rest/admin/users" hx-swap="innerHTML" hx-target="this" hx-trigger="load,force" hx-indicator="#load-body"></div>
+			<div id="load-body" class="htmx-indicator overlay">
+				<div id="spinner"></div>
+			</div>
+		</body>
+		<script>
+		// Once elements have been retrieved and loaded into the DOM by HTMX, 
+		// Convert all of the teams multi selects to chosen components 
+		htmx.on("htmx:afterOnLoad", function (evt) {
+			$(".teams-select").chosen({ width: "200px", no_results_text: "No teams found...", placeholder_text_multiple: "Select teams...", display_selected_options: false });
+		});
+		</script>
+	</html>
+}
+
+templ ComponentMessage(message string, isSuccess bool) {
+	<div class={ "alert", templ.KV("success", isSuccess) }>
+		<div>
+			if isSuccess {
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"></path></svg>
+			} else {
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg>
+			}
+		</div>
+		<div>
+			<b>{ message }</b>
+		</div>
+		<div>
+			<span class="alert-close" onclick="$(this).closest('.alert').remove();">&times;</span>
+		</div>
+	</div>
+}
+
+templ ComponentUserTable(teams []Team, roles []Role, users []User) {
+	<table>
+		<thead>
+			<tr>
+				<th class="header-details email">Email</th>
+				<th class="header-details">User Type</th>
+				<th class="header-details">Team(s)</th>
+				for _,role := range roles {
+					if !role.IsScanType {
+						<th class="rotate"><div><span>{ role.RoleDescription }</span></div></th>
+					}
+				}
+				<th class="last-header header-details">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _,user := range users {
+				@ComponentUserTableRow(roles, teams, user)
+			}
+		</tbody>
+	</table>
+}
+
+templ ComponentUserTableRow(roles []Role, teams []Team, user User) {
+	<tr class={ templ.KV("altered", user.Altered) }>
+		<td class="body-details">{ user.EmailAddress }</td>
+		<td class="body-details">{ user.AccountType }</td>
+		<td class="body-details">
+			<select multiple name="teams" class="teams-select">
+				for _, team := range teams {
+					<option value={ team.TeamId } selected?={ user.HasTeam(team.TeamId) }>{ team.TeamName }</option>
+				}
+			</select>
+		</td>
+		for _, role := range roles {
+			// These are the roles that have their own columns in the table.
+			// Scan Type roles are set in a modal.
+			if !role.IsScanType {
+				<td>
+					<input type="checkbox" name={ role.RoleName } id={ role.RoleName } checked?={ user.HasRole(role.RoleName) }/>
+				</td>
+			}
+		}
+		<td class="long-cell">
+			<div>
+				<button class="action-button" onclick="ShowActionDropdown(event);">🛠️</button>
+				<div class="dropdown">
+					<ul>
+						<li class="item">Set Governed Teams</li>
+						<li class="item">Set Allowed Scan Types</li>
+					</ul>
+				</div>
+			</div>
+		</td>
+	</tr>
+}

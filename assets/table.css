@@ -1,5 +1,5 @@
 :root {
-    --border-color: #dee2e6!important;
+    --border-color: #dee2e6 !important;
     --border-radius-large: 0.375rem;
 
     --alert-success-colour: #8ac72e;
@@ -16,7 +16,8 @@ th.rotate {
     white-space: nowrap;
     position: relative;
 }
-th.rotate > div {
+
+th.rotate>div {
     /* place div at bottom left of the th parent */
     position: absolute;
     bottom: 0;
@@ -25,19 +26,20 @@ th.rotate > div {
     text-align: left;
     /* Move the top left corner of the span's bottom-border to line up with the top left corner of the td's border-right border so that the border corners are matched
     * Rotate 315 (-45) degrees about matched border corners */
-    transform: 
-    translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width))
-    rotate(315deg);
+    transform:
+        translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width)) rotate(315deg);
     transform-origin: 0% calc(100% - var(--table-border-width));
     width: 100%;
 }
-th.rotate > div > span {
+
+th.rotate>div>span {
     /* make sure the bottom of the span is matched up with the bottom of the parent div */
     position: absolute;
     bottom: 0;
     left: 0;
     border-bottom: var(--table-border-width) solid var(--border-color);
 }
+
 tr {
     border-bottom: var(--table-border-width) solid var(--border-color);
     transition: background-color 450ms linear;
@@ -133,6 +135,7 @@ th {
     fill: currentColor;
     cursor: pointer;
 }
+
 .filter-filter svg:hover {
     color: #0aa2dc;
     font-weight: 400;
@@ -150,7 +153,7 @@ th {
     width: 290px;
 }
 
-select:invalid{
+select:invalid {
     color: gray;
 }
 
@@ -216,8 +219,13 @@ select:invalid{
     padding: 15px;
 }
 
-.alert.success {border: 1px solid var(--alert-success-colour);}
-.alert.success div:nth-child(1) {background-color: var(--alert-success-colour);}
+.alert.success {
+    border: 1px solid var(--alert-success-colour);
+}
+
+.alert.success div:nth-child(1) {
+    background-color: var(--alert-success-colour);
+}
 
 .alert-close {
     margin-left: 15px;
@@ -232,4 +240,64 @@ select:invalid{
 
 .alert-close:hover {
     color: black;
+}
+
+.dropdown {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+td.long-cell>div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+div.dropdown>ul {
+    position: absolute;
+    /* top: 100%; */
+    z-index: 1000;
+    margin-left: 0.2rem;
+    padding: .3rem 0 .5rem;
+    min-width: 10rem;
+    list-style: none;
+    text-align: left;
+    background-color: white;
+    border-bottom-left-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+    box-shadow: 0 .375rem .75rem rgba(0, 0, 0, .175);
+    background-clip: padding-box;
+    border: 1px solid #dddddd;
+    margin: 0;
+    font-family: Fira Sans, sans-serif;
+    font-size: 12px;
+}
+
+div.dropdown>ul>li.item {
+    display: block;
+    padding: 3px 20px 2px;
+    clear: both;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+div.dropdown>ul>li.item:hover {
+    color: #00b3e6;
+    background-color: #dddddd;
+}
+
+div.dropdown>ul>li.section {
+    display: block;
+    clear: both;
+    opacity: 1;
+    padding: .5rem .625rem 4px;
+    color: #aaa;
+    font-weight: 700;
+    cursor: not-allowed;
 }

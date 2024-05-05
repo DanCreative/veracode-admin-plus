@@ -215,7 +215,11 @@ func veracodeToUser(vUser *veracode.User) *admin.User {
 	uTeams := make([]admin.Team, len(*vUser.Teams))
 
 	for k, role := range *vUser.Roles {
-		uRoles[k].RoleId = role.RoleId
+		uRoles[k] = admin.Role{
+			RoleId:          role.RoleId,
+			RoleName:        role.RoleName,
+			RoleDescription: role.RoleDescription,
+		}
 	}
 
 	for k, team := range *vUser.Teams {

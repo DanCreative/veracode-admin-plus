@@ -1,6 +1,8 @@
 package admin
 
-import "net/url"
+import (
+	"net/url"
+)
 
 type Role struct {
 	RoleId          string
@@ -66,6 +68,13 @@ type UpdateOptions struct {
 	Partial     *bool // partial=true indicates that you are updating only a subset of properties for an object.
 }
 
+// message is used on the frontend
+type message struct {
+	IsSuccess  bool
+	ShouldShow bool
+	Text       string
+}
+
 func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastUrlStr, nextUrlStr, prevUrlStr, selfUrlStr string) PageMeta {
 	firstUrl, _ := url.Parse(firstUrlStr)
 	lastUrl, _ := url.Parse(lastUrlStr)
@@ -86,7 +95,7 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 	}
 }
 
-// HasRole is a helper method to check whether a user has a specific role based on id.
+// HasRole is a helper method to check whether a user has a specific role based on name.
 func (u *User) HasRole(roleName string) bool {
 	for _, userRole := range u.Roles {
 		if roleName == userRole.RoleName {

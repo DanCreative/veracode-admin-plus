@@ -9,6 +9,7 @@ var _ UserService = &service{}
 type UserService interface {
 	GetAggregatedUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error)
 	SubmitUsers(ctx context.Context) []error
+	SetRoles(ctx context.Context) error
 	GetRoles(ctx context.Context) ([]Role, error)
 	GetTeams(ctx context.Context) ([]Team, error)
 }
@@ -76,6 +77,17 @@ func (s *service) SubmitUsers(ctx context.Context) []error {
 // Roles should be stored in the local repo upon init.
 func (s *service) GetRoles(ctx context.Context) ([]Role, error) {
 	return s.userLocalRepo.GetAllRoles(ctx)
+}
+
+// SetRoles gets all roles from the backend and caches them
+// in the local repository.
+func (s *service) SetRoles(ctx context.Context) error {
+	roles, err := s.userBackendRepo.GetAllRoles(ctx)
+	if err != nil {
+		return err
+	}
+
+	return s.userLocalRepo.SetRoles(ctx, roles)
 }
 
 // GetTeams will always get the teams from the Veracode backend.

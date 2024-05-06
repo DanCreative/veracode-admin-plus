@@ -41,11 +41,14 @@ type PageMeta struct {
 	Size          int
 	TotalElements int
 	TotalPages    int
-	FirstParams   string // URL parameters for the first page
-	LastParams    string // URL parameters for the last page
-	NextParams    string // URL parameters for the next page
-	PrevParams    string // URL parameters for the prev page
-	SelfParams    string // URL parameters for the current page
+
+	// Below attributes are used for navigation on the frontend.
+	FirstParams  string            // URL parameters for the first page
+	LastParams   string            // URL parameters for the last page
+	NextParams   string            // URL parameters for the next page
+	PrevParams   string            // URL parameters for the prev page
+	SelfParams   string            // URL parameters for the current page
+	FilterParams map[string]string // URL parameters for all of the filters.
 }
 
 type SearchUserOptions struct {
@@ -82,6 +85,24 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 	prevUrl, _ := url.Parse(prevUrlStr)
 	selfUrl, _ := url.Parse(selfUrlStr)
 
+	selfValues := selfUrl.Query()
+	filterParams := map[string]string{}
+
+	for key, value := range selfValues {
+		if key == "detailed" || key == "page" || key == "size" {
+			continue
+		}
+
+		// Make sure that there is atleast one item in list
+		if len(value) > 0 {
+			// Creates a map of filter parameter sets where each set excludes the current parameter.
+			// This is for the delete filter button on the frontend.
+			delete(selfValues, key)
+			filterParams[key] = selfValues.Encode()
+			selfValues[key] = value
+		}
+	}
+
 	return PageMeta{
 		PageNumber:    number,
 		Size:          size,
@@ -92,6 +113,7 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 		NextParams:    nextUrl.RawQuery,
 		PrevParams:    prevUrl.RawQuery,
 		SelfParams:    selfUrl.RawQuery,
+		FilterParams:  filterParams,
 	}
 }
 

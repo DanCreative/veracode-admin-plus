@@ -106,7 +106,7 @@ func ComponentMessage(msg message) templ.Component {
 	})
 }
 
-func ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions) templ.Component {
+func ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions, pageMeta PageMeta) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -131,7 +131,11 @@ func ComponentUserContent(msg message, teams []Team, roles []Role, users []User,
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ComponentFilterBand(teams, roles, options).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ComponentFilterBand(teams, roles, options, pageMeta).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ComponentSearchBand(teams, roles, pageMeta).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -338,7 +342,7 @@ func ComponentUserTableRow(roles []Role, teams []Team, user User, options Search
 	})
 }
 
-func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) templ.Component {
+func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions, pageMeta PageMeta) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -357,19 +361,19 @@ func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) 
 		}
 		if options.UserType != "" {
 			if options.UserType == "user" {
-				templ_7745c5c3_Err = ComponentFilterPill("User Type", "UI User").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ComponentFilterPill("User Type", pageMeta.FilterParams["user_type"], "UI User").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if options.UserType == "api" {
-				templ_7745c5c3_Err = ComponentFilterPill("User Type", "API User").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ComponentFilterPill("User Type", pageMeta.FilterParams["user_type"], "API User").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
 		if options.SearchTerm != "" {
-			templ_7745c5c3_Err = ComponentFilterPill("Search Term", options.SearchTerm).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ComponentFilterPill("Search Term", pageMeta.FilterParams["search_term"], options.SearchTerm).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -377,7 +381,7 @@ func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) 
 		if options.RoleId != "" {
 			for _, role := range roles {
 				if role.RoleId == options.RoleId {
-					templ_7745c5c3_Err = ComponentFilterPill("Role", role.RoleDescription).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = ComponentFilterPill("Role", pageMeta.FilterParams["role_id"], role.RoleDescription).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -387,7 +391,7 @@ func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) 
 		if options.TeamId != "" {
 			for _, team := range teams {
 				if team.TeamId == options.TeamId {
-					templ_7745c5c3_Err = ComponentFilterPill("Team Membership", team.TeamName).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = ComponentFilterPill("Team Membership", pageMeta.FilterParams["team_id"], team.TeamName).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -395,36 +399,46 @@ func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) 
 			}
 		}
 		if options.ApiId != "" {
-			templ_7745c5c3_Err = ComponentFilterPill("Search Term", options.ApiId).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ComponentFilterPill("Search Term", pageMeta.FilterParams["api_id"], options.ApiId).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if options.LoginEnabled != "" {
-			templ_7745c5c3_Err = ComponentFilterPill("Login Enabled", options.LoginEnabled).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ComponentFilterPill("Login Enabled", pageMeta.FilterParams["login_enabled"], options.LoginEnabled).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if options.LoginStatus != "" {
-			templ_7745c5c3_Err = ComponentFilterPill("Login Status", options.LoginStatus).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ComponentFilterPill("Login Status", pageMeta.FilterParams["login_status"], options.LoginStatus).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if options.SamlUser != "" {
-			templ_7745c5c3_Err = ComponentFilterPill("SAML", options.SamlUser).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ComponentFilterPill("SAML", pageMeta.FilterParams["saml_user"], options.SamlUser).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if options.Cart != "" {
-			templ_7745c5c3_Err = ComponentFilterPill("Cart", options.Cart).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ComponentFilterPill("Cart", pageMeta.FilterParams["cart"], options.Cart).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><button class=\"filter-clear\" hx-delete=\"/users/filters\" hx-target=\"#container\" hx-swap=\"innerHTML\" hx-indicator=\"#load-body\">Clear Filter</button></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(pageMeta.FilterParams) > 0 {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button class=\"filter-clear\" hx-get=\"/api/rest/admin/users\" hx-target=\"#container\" hx-swap=\"innerHTML\" hx-indicator=\"#load-body\">Clear Filter</button>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -435,7 +449,7 @@ func ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) 
 	})
 }
 
-func ComponentFilterPill(label, value string) templ.Component {
+func ComponentFilterPill(label, deleteParams, value string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -455,7 +469,7 @@ func ComponentFilterPill(label, value string) templ.Component {
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 180, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 183, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -468,13 +482,26 @@ func ComponentFilterPill(label, value string) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 182, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 185, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <svg xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\" width=\"20\" height=\"20\" viewBox=\"0 0 50 50\"><path d=\"M 25 2 C 12.309534 2 2 12.309534 2 25 C 2 37.690466 12.309534 48 25 48 C 37.690466 48 48 37.690466 48 25 C 48 12.309534 37.690466 2 25 2 z M 25 4 C 36.609534 4 46 13.390466 46 25 C 46 36.609534 36.609534 46 25 46 C 13.390466 46 4 36.609534 4 25 C 4 13.390466 13.390466 4 25 4 z M 32.990234 15.986328 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.990234 15.986328 z\"></path></svg></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <svg hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs("/api/rest/admin/users?" + deleteParams)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 186, Col: 55}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-swap=\"innerHTML\" hx-target=\"#container\" hx-indicator=\"#load-body\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\" width=\"20\" height=\"20\" viewBox=\"0 0 50 50\"><path d=\"M 25 2 C 12.309534 2 2 12.309534 2 25 C 2 37.690466 12.309534 48 25 48 C 37.690466 48 48 37.690466 48 25 C 48 12.309534 37.690466 2 25 2 z M 25 4 C 36.609534 4 46 13.390466 46 25 C 46 36.609534 36.609534 46 25 46 C 13.390466 46 4 36.609534 4 25 C 4 13.390466 13.390466 4 25 4 z M 32.990234 15.986328 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.990234 15.986328 z\"></path></svg></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -485,7 +512,7 @@ func ComponentFilterPill(label, value string) templ.Component {
 	})
 }
 
-func ComponentSearchBand() templ.Component {
+func ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -493,11 +520,109 @@ func ComponentSearchBand() templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var20 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var20 == nil {
-			templ_7745c5c3_Var20 = templ.NopComponent
+		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var21 == nil {
+			templ_7745c5c3_Var21 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"band-filters\"><div><input type=\"search\" id=\"search_term\" name=\"search_term\" placeholder=\"Search by name, username, email, or API ID\"> <button hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs("/api/rest/admin/users?" + pageMeta.SelfParams)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 196, Col: 66}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#container\" hx-swap=\"innerHTML\" hx-indicator=\"#load-body\" hx-include=\"#search_term\">Go</button></div><div><span>Filter by</span> <select onchange=\"CascadeValues(this.value)\"><option disabled selected hidden>Select</option> <option value=\"role_id\">Role</option> <option value=\"user_type\">User Type</option> <option value=\"login_enabled\">Login Enabled</option> <option value=\"login_status\">Login Status</option> <option value=\"saml_user\">SAML</option> <option value=\"team_id\">Team Membership</option> <option value=\"cart\">Cart</option></select> <span>=</span> <select name=\"\" id=\"filter-options\"><option disabled selected hidden>Select</option> <option hidden class=\"user_type\" value=\"user\">UI User</option> <option hidden class=\"user_type\" value=\"api\">API User</option> <option hidden class=\"login_enabled\" value=\"Yes\">Yes</option> <option hidden class=\"login_enabled\" value=\"No\">No</option> <option hidden class=\"login_status\" value=\"Active\">Active </option> <option hidden class=\"login_status\" value=\"Locked\">Locked </option> <option hidden class=\"login_status\" value=\"Never\">Never </option> <option hidden class=\"saml_user\" value=\"Yes\">Yes</option> <option hidden class=\"saml_user\" value=\"No\">No</option> <option hidden class=\"cart\" value=\"Yes\">Yes</option> <option hidden class=\"cart\" value=\"No\">No</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, team := range teams {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<option hidden class=\"team_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var23 string
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(team.TeamId)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 225, Col: 55}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var24 string
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(team.TeamName)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 225, Col: 73}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</option> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		for _, role := range roles {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<option hidden class=\"role_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var25 string
+			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(role.RoleId)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 228, Col: 55}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(role.RoleDescription)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 228, Col: 80}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select> <button hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 string
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs("/api/rest/admin/users?" + pageMeta.SelfParams)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 231, Col: 66}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#container\" hx-swap=\"innerHTML\" hx-indicator=\"#load-body\" hx-include=\"#filter-options\">Apply</button></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		if !templ_7745c5c3_IsBuffer {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
 		}

@@ -31,7 +31,7 @@ func (u *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	// fmt.Printf("url.Values: %v, options: %v", q, options)
 
-	users, _, err := u.userService.GetAggregatedUsers(r.Context(), options)
+	users, pageMeta, err := u.userService.GetAggregatedUsers(r.Context(), options)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
 	}
@@ -46,7 +46,7 @@ func (u *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 	}
 
-	ComponentUserContent(message{ShouldShow: false}, teams, roles, users, options).Render(r.Context(), w)
+	ComponentUserContent(message{ShouldShow: false}, teams, roles, users, options, pageMeta).Render(r.Context(), w)
 }
 
 // getUserOptionsFromURLValues decodes the request's url.Values into a SearchUserOptions.

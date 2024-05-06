@@ -54,12 +54,12 @@ templ ComponentMessage(msg message) {
 	}
 }
 
-templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions) {
+templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions, pageMeta PageMeta) {
 	<div>
 		@ComponentMessage(msg)
 		<div>
-			@ComponentFilterBand(teams, roles, options)
-			// TODO: ComponentSearchBand
+			@ComponentFilterBand(teams, roles, options, pageMeta)
+			@ComponentSearchBand(teams, roles, pageMeta)
 			// TODO: ComponentCartBand
 		</div>
 		<table>
@@ -123,7 +123,7 @@ templ ComponentUserTableRow(roles []Role, teams []Team, user User, options Searc
 	</tr>
 }
 
-templ ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions) {
+templ ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions, pageMeta PageMeta) {
 	<div class="band-title">
 		<div class="title">All Users</div>
 		<div class="filters-with-button">
@@ -131,60 +131,104 @@ templ ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions)
 				// "Iterating" over SearchUserOptions
 				if options.UserType != "" {
 					if options.UserType == "user" {
-						@ComponentFilterPill("User Type", "UI User")
+						@ComponentFilterPill("User Type", pageMeta.FilterParams["user_type"], "UI User")
 					} else if options.UserType == "api" {
-						@ComponentFilterPill("User Type", "API User")
+						@ComponentFilterPill("User Type", pageMeta.FilterParams["user_type"], "API User")
 					}
 				}
 				if options.SearchTerm != "" {
-					@ComponentFilterPill("Search Term", options.SearchTerm)
+					@ComponentFilterPill("Search Term", pageMeta.FilterParams["search_term"], options.SearchTerm)
 				}
 				if options.RoleId != "" {
 					for _, role := range roles {
 						if role.RoleId == options.RoleId {
-							@ComponentFilterPill("Role", role.RoleDescription)
+							@ComponentFilterPill("Role", pageMeta.FilterParams["role_id"], role.RoleDescription)
 						}
 					}
 				}
 				if options.TeamId != "" {
 					for _, team := range teams {
 						if team.TeamId == options.TeamId {
-							@ComponentFilterPill("Team Membership", team.TeamName)
+							@ComponentFilterPill("Team Membership", pageMeta.FilterParams["team_id"], team.TeamName)
 						}
 					}
 				}
 				if options.ApiId != "" {
-					@ComponentFilterPill("Search Term", options.ApiId)
+					@ComponentFilterPill("Search Term", pageMeta.FilterParams["api_id"], options.ApiId)
 				}
 				if options.LoginEnabled != "" {
-					@ComponentFilterPill("Login Enabled", options.LoginEnabled)
+					@ComponentFilterPill("Login Enabled", pageMeta.FilterParams["login_enabled"], options.LoginEnabled)
 				}
 				if options.LoginStatus != "" {
-					@ComponentFilterPill("Login Status", options.LoginStatus)
+					@ComponentFilterPill("Login Status", pageMeta.FilterParams["login_status"], options.LoginStatus)
 				}
 				if options.SamlUser != "" {
-					@ComponentFilterPill("SAML", options.SamlUser)
+					@ComponentFilterPill("SAML", pageMeta.FilterParams["saml_user"], options.SamlUser)
 				}
 				if options.Cart != "" {
-					@ComponentFilterPill("Cart", options.Cart)
+					@ComponentFilterPill("Cart", pageMeta.FilterParams["cart"], options.Cart)
 				}
 			</div>
 			// If there are filters, show clear filter button
-			<button class="filter-clear" hx-delete="/users/filters" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Clear Filter</button>
+			// TODO: Include page and size in clear filter button request
+			if len(pageMeta.FilterParams) > 0 {
+				<button class="filter-clear" hx-get="/api/rest/admin/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Clear Filter</button>
+			}
 		</div>
 	</div>
 }
 
-templ ComponentFilterPill(label, value string) {
+templ ComponentFilterPill(label, deleteParams, value string) {
 	<div class="filter-filter">
 		<span class="filter-label">{ label }</span>
 		<span class="equals-sign">=</span>
 		<span class="filter-value">{ value }</span>
-		<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 50 50">
+		<svg hx-get={ "/api/rest/admin/users?" + deleteParams } hx-swap="innerHTML" hx-target="#container" hx-indicator="#load-body" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 50 50">
 			<path d="M 25 2 C 12.309534 2 2 12.309534 2 25 C 2 37.690466 12.309534 48 25 48 C 37.690466 48 48 37.690466 48 25 C 48 12.309534 37.690466 2 25 2 z M 25 4 C 36.609534 4 46 13.390466 46 25 C 46 36.609534 36.609534 46 25 46 C 13.390466 46 4 36.609534 4 25 C 4 13.390466 13.390466 4 25 4 z M 32.990234 15.986328 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.990234 15.986328 z"></path>
 		</svg>
 	</div>
 }
 
-templ ComponentSearchBand() {
+templ ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) {
+	<div class="band-filters">
+		<div>
+			<input type="search" id="search_term" name="search_term" placeholder="Search by name, username, email, or API ID"/>
+			<button hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#search_term">Go</button>
+		</div>
+		<div>
+			<span>Filter by</span>
+			<select onchange="CascadeValues(this.value)">
+				<option disabled selected hidden>Select</option>
+				<option value="role_id">Role</option>
+				<option value="user_type">User Type</option>
+				<option value="login_enabled">Login Enabled</option>
+				<option value="login_status">Login Status</option>
+				<option value="saml_user">SAML</option>
+				<option value="team_id">Team Membership</option>
+				<option value="cart">Cart</option>
+			</select>
+			<span>=</span>
+			<select name="" id="filter-options">
+				<option disabled selected hidden>Select</option>
+				<option hidden class="user_type" value="user">UI User</option>
+				<option hidden class="user_type" value="api">API User</option>
+				<option hidden class="login_enabled" value="Yes">Yes</option>
+				<option hidden class="login_enabled" value="No">No</option>
+				<option hidden class="login_status" value="Active">Active </option>
+				<option hidden class="login_status" value="Locked">Locked </option>
+				<option hidden class="login_status" value="Never">Never </option>
+				<option hidden class="saml_user" value="Yes">Yes</option>
+				<option hidden class="saml_user" value="No">No</option>
+				<option hidden class="cart" value="Yes">Yes</option>
+				<option hidden class="cart" value="No">No</option>
+				for _, team := range teams {
+					<option hidden class="team_id" value={ team.TeamId }>{ team.TeamName }</option>
+				}
+				for _, role := range roles {
+					<option hidden class="role_id" value={ role.RoleId }>{ role.RoleDescription }</option>
+				}
+			</select>
+			<button hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#filter-options">Apply</button>
+		</div>
+	</div>
 }

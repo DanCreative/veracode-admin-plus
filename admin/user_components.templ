@@ -1,5 +1,10 @@
 package admin
 
+import (
+	"math"
+	"fmt"
+)
+
 templ PageUsers() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -84,6 +89,7 @@ templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User
 				}
 			</tbody>
 		</table>
+		@ComponentTableControlsBand(pageMeta)
 	</div>
 }
 
@@ -230,5 +236,32 @@ templ ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) {
 			</select>
 			<button hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#filter-options">Apply</button>
 		</div>
+	</div>
+}
+
+templ ComponentTableControlsBand(pageMeta PageMeta) {
+	<div class="band-controls">
+		// Example output of below statement will be: 71 - 80 of 120
+		// Handles case where the last page has fewer items than the size
+		<div>{ fmt.Sprint((pageMeta.PageNumber * pageMeta.Size) + 1) + " - " + fmt.Sprint(int(math.Min(float64((pageMeta.PageNumber*pageMeta.Size)+pageMeta.Size), float64(pageMeta.TotalElements)))) + " of " + fmt.Sprint(pageMeta.TotalElements) }</div>
+		<span class="grid-paging-summary-panel">
+			<button type="button" disabled?={ pageMeta.SelfParams == pageMeta.FirstParams || pageMeta.FirstParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.FirstParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">◀◀ </button>
+			<button type="button" disabled?={ pageMeta.PrevParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.PrevParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">◀ </button>
+			// TODO: Post page number from input to backend, but reduce by 1
+			<input name="page" value={ fmt.Sprint(pageMeta.PageNumber + 1) } disabled/>
+			<span>{ "of " + fmt.Sprint(pageMeta.TotalPages) }</span>
+			<button type="button" disabled?={ pageMeta.NextParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.NextParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">▶ </button>
+			<button type="button" disabled?={ pageMeta.SelfParams == pageMeta.LastParams || pageMeta.LastParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.LastParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">▶▶ </button>
+		</span>
+		<span>
+			<label for="users-1-row-select">Rows</label>
+			<select id="users-1-row-select" name="size" hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">
+				<option value="10" selected?={ pageMeta.Size == 10 }>10 </option>
+				<option value="25" selected?={ pageMeta.Size == 25 }>25 </option>
+				<option value="50" selected?={ pageMeta.Size == 50 }>50 </option>
+				<option value="100" selected?={ pageMeta.Size == 100 }>100 </option>
+				<option value="250" selected?={ pageMeta.Size == 250 }>250 </option>
+			</select>
+		</span>
 	</div>
 }

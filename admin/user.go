@@ -97,7 +97,18 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 		if len(value) > 0 {
 			// Creates a map of filter parameter sets where each set excludes the current parameter.
 			// This is for the delete filter button on the frontend.
-			delete(selfValues, key)
+
+			// If the user tries to remove the "User Type" filter, it will instead switch between API or UI.
+			if key == "user_type" {
+				if value[0] == "user" {
+					selfValues[key][0] = "api"
+				} else if value[0] == "api" {
+					selfValues[key][0] = "user"
+				}
+
+			} else {
+				delete(selfValues, key)
+			}
 			filterParams[key] = selfValues.Encode()
 			selfValues[key] = value
 		}
@@ -108,12 +119,13 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 		Size:          size,
 		TotalElements: totalElements,
 		TotalPages:    totalPages,
-		FirstParams:   firstUrl.RawQuery,
-		LastParams:    lastUrl.RawQuery,
-		NextParams:    nextUrl.RawQuery,
-		PrevParams:    prevUrl.RawQuery,
-		SelfParams:    selfUrl.RawQuery,
-		FilterParams:  filterParams,
+
+		FirstParams:  firstUrl.RawQuery,
+		LastParams:   lastUrl.RawQuery,
+		NextParams:   nextUrl.RawQuery,
+		PrevParams:   prevUrl.RawQuery,
+		SelfParams:   selfUrl.RawQuery,
+		FilterParams: filterParams,
 	}
 }
 

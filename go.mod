@@ -5,7 +5,7 @@ go 1.21.2
 toolchain go1.21.5
 
 require (
-	github.com/DanCreative/veracode-go v0.1.1
+	github.com/DanCreative/veracode-go v0.2.0
 	github.com/DanCreative/veracode-hmac-go v1.0.0
 	github.com/a-h/templ v0.2.663
 	github.com/go-chi/chi/v5 v5.0.10

@@ -5,32 +5,20 @@ import "context"
 type IdentityRepository interface {
 	SearchAggregatedUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error)
 	BulkUpdateUsers(ctx context.Context, users map[string]User) []error
-	GetAllRoles(ctx context.Context) ([]Role, error)
-	GetAllTeams(ctx context.Context) ([]Team, error)
+	UpdateUser(ctx context.Context, userId string, user User) (User, error)
 }
 
-type IdentityLocalRepository interface {
-	// Add users to local cache
-	AddUsers(ctx context.Context, users []User) error
+// UserEntityRepository will for now be used to get the different child entities of the user model from the backend.
+// It should store entities locally to reduce load times.
+type UserEntityRepository[t any] interface {
+	// List should get entities from the backend or from the locally stored list.
+	// shouldRefresh bool should determine whether the data should be refreshed.
+	List(ctx context.Context, options PageOptions, shouldRefresh bool) ([]t, error)
+}
 
-	// Update cached user and move it to the cart
-	UpdateUser(ctx context.Context, userId string, user User) error
-
-	// Get all users that have been modified and are in the cart
-	GetCartUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error)
-
-	// Remove user from the cart
-	RemoveCartUser(ctx context.Context, userId string) error
-
-	// Clear the user cart
-	ClearCart(ctx context.Context) error
-
-	// Get user from local
-	GetUser(ctx context.Context, userId string) (User, bool)
-
-	// Get all local roles
-	GetAllRoles(ctx context.Context) ([]Role, error)
-
-	// Save roles locally roles
-	SetRoles(ctx context.Context, roles []Role) error
+// RoleRepository should store roles locally to reduce load times.
+type RoleRepository interface {
+	// GetRoles should get roles from the backend or from the locally stored roles.
+	// shouldRefresh bool should determine whether the data should be refreshed.
+	GetRoles(ctx context.Context, options PageOptions, shouldRefresh bool) ([]Role, error)
 }

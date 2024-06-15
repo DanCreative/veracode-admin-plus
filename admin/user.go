@@ -2,7 +2,42 @@ package admin
 
 import (
 	"net/url"
+	"sync"
 )
+
+var (
+	rolesRequireTeamMembership = [...]string{
+		"extmitigationapprover",
+		"workSpaceEditor",
+		"deletescans",
+		"extreviewer",
+		"analyticsCreator",
+		"securityinsightsonly",
+		"workSpaceAdmin",
+		"sandboxuser",
+		"teamAdmin",
+		"extcreator",
+		"extsubmitter",
+	} // Requires Team Membership
+	rolesRequireScanType = [...]string{
+		"extcreator",
+		"extsubmitter",
+		"extseclead",
+		"uploadapi",
+		"submitterapi",
+	} // Requires Scan Type
+	rolesRequireOtherRoles = [...]string{
+		"collectionManager",
+		"collectionReviewer",
+		"sandboxadmin",
+		"extpolicyadmin",
+	} // Requires one of the following roles: Administrator, Security Insigths, Security Lead, Executive, Creator, Submitter or Reviewer
+)
+
+type PageOptions struct {
+	Size int
+	Page int
+}
 
 type Role struct {
 	RoleId          string
@@ -10,23 +45,17 @@ type Role struct {
 	RoleDescription string
 	IsApi           bool
 	IsScanType      bool
-
-	// Not on Veracode API Model
-	IsChecked      bool
-	IsDisabled     bool
-	IsAddScanTypes bool
 }
 
 type User struct {
-	Roles        []Role
-	UserId       string
-	AccountType  string
-	EmailAddress string
-	Teams        []Team
+	Roles         map[string]Role
+	ScanTypeRoles map[string]Role
+	UserId        string
+	AccountType   string
+	EmailAddress  string
+	Teams         map[string]Team
 
-	// Not on Veracode API Model
-	CountScanTypeAdders int
-	Altered             bool
+	Altered bool // Not on Veracode API Model
 }
 
 type Team struct {
@@ -76,6 +105,14 @@ type message struct {
 	IsSuccess  bool
 	ShouldShow bool
 	Text       string
+}
+
+type userStorage struct {
+	users map[string]struct {
+		index int
+		User
+	}
+	mu sync.RWMutex
 }
 
 func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastUrlStr, nextUrlStr, prevUrlStr, selfUrlStr string) PageMeta {
@@ -131,8 +168,80 @@ func NewPageMeta(number, size, totalElements, totalPages int, firstUrlStr, lastU
 
 // HasRole is a helper method to check whether a user has a specific role based on name.
 func (u *User) HasRole(roleName string) bool {
-	for _, userRole := range u.Roles {
-		if roleName == userRole.RoleName {
+	_, roleOk := u.Roles[roleName]
+	return roleOk
+}
+
+// HasScanRole is a helper method to check whether a user has a specific scan type role based on name.
+func (u *User) HasScanRole(roleName string) bool {
+	_, roleOk := u.ScanTypeRoles[roleName]
+	return roleOk
+}
+
+// GetAnyScanRole is a helper method to get the API or UI scan type roles.
+// If the user does not have the any scan role, it returns an empty string.
+func (u *User) GetAnyScanRole() string {
+	_, hasAPIAny := u.ScanTypeRoles["apisubmitanyscan"]
+	_, hasUIAny := u.ScanTypeRoles["extsubmitanyscan"]
+
+	if hasAPIAny {
+		return "apisubmitanyscan"
+	} else if hasUIAny {
+		return "extsubmitanyscan"
+	} else {
+		return ""
+	}
+}
+
+func (u *User) anyScanRoleValue() string {
+	if u.AccountType == "USER" {
+		return "extsubmitanyscan"
+	} else {
+		return "apisubmitanyscan"
+	}
+}
+
+// Certain roles require that the user has scan type roles as well. requiresScanTypeRoles will
+// return true if the user does and false if not.
+func requiresScanTypeRoles(roles map[string]Role) bool {
+	for _, roleName := range rolesRequireScanType {
+		if _, ok := roles[roleName]; ok {
+			return true
+		}
+
+	}
+
+	return false
+}
+
+// Certain roles requires that the user is part of a team. requiresTeamMembership returns
+// a boolean with value true if the user has one of these roles. If the user does, it also
+// returns the first offending role.
+//
+// The rule does not apply if the user is an admin.
+func requiresTeamMembership(roles map[string]Role) bool {
+	if _, ok := roles["extadmin"]; ok {
+		return false
+	}
+	for _, roleName := range rolesRequireTeamMembership {
+		if _, ok := roles[roleName]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// Certain roles require that one of the following roles is selected: Administrator, Security Insigths, Security Lead, Executive, Creator, Submitter or Reviewer.
+// requiresOtherRoles will return true if the user has one of these roles and false if not.
+func requiresOtherRoles(roles map[string]Role) bool {
+	for _, roleName := range rolesRequireOtherRoles {
+		if _, ok := roles[roleName]; ok {
+			for _, requiredRoleName := range [...]string{"extadmin", "securityinsightsonly", "extseclead", "extexecutive", "extcreator", "extsubmitter", "extreviewer"} {
+				if _, ok := roles[requiredRoleName]; ok {
+					return false
+				}
+			}
+
 			return true
 		}
 	}
@@ -141,10 +250,77 @@ func (u *User) HasRole(roleName string) bool {
 
 // HasTeam is a helper method to check whether a user is part of a specific team based on id.
 func (u *User) HasTeam(teamId string) bool {
-	for _, userTeam := range u.Teams {
-		if teamId == userTeam.TeamId {
-			return true
+	_, ok := u.Teams[teamId]
+	return ok
+}
+
+// HasAdminTeam is a helper method to check whether a user has a team with provided id and whether their relationship to that team is administrative.
+func (u *User) HasAdminTeam(teamId string) bool {
+	team, ok := u.Teams[teamId]
+	if !ok {
+		return false
+	}
+	return team.Relationship == "ADMIN"
+}
+
+func newUserStorage() userStorage {
+	return userStorage{
+		users: make(map[string]struct {
+			index int
+			User
+		}),
+	}
+}
+
+func (us *userStorage) ReplaceUsers(users []User) {
+	us.mu.Lock()
+	defer us.mu.Unlock()
+	clear(us.users)
+	for k, user := range users {
+		us.users[user.UserId] = struct {
+			index int
+			User
+		}{
+			k,
+			user,
 		}
 	}
-	return false
+}
+
+func (us *userStorage) GetUserWithID(userID string) (User, bool) {
+	us.mu.RLock()
+	defer us.mu.RUnlock()
+
+	iUser, ok := us.users[userID]
+	return iUser.User, ok
+}
+
+func (us *userStorage) GetUserList() []User {
+	us.mu.RLock()
+	defer us.mu.RUnlock()
+
+	r := make([]User, len(us.users))
+
+	for _, v := range us.users {
+		r[v.index] = v.User
+	}
+
+	return r
+}
+
+func (us *userStorage) AddUser(userID string, user User) {
+	us.mu.Lock()
+	defer us.mu.Unlock()
+
+	if iUser, ok := us.users[userID]; ok {
+		us.users[userID] = struct {
+			index int
+			User
+		}{iUser.index, user}
+	} else {
+		us.users[userID] = struct {
+			index int
+			User
+		}{len(us.users), user}
+	}
 }

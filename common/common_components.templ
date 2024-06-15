@@ -1,0 +1,26 @@
+package common
+
+templ Page(lazyContentRelativeURL string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Veracode Admin Plus</title>
+			<link rel="stylesheet" href="/assets/chosen.min.css"/>
+			<link rel="stylesheet" href="/assets/common.css"/>
+			<link rel="stylesheet" href="/assets/users.css"/>
+			<script src="/assets/htmx-1.9.12.min.js"></script>
+			<script src="/assets/jquery-3.7.0.min.js"></script>
+			<script src="/assets/chosen.jquery.min.js"></script>
+			<script src="/assets/users.js"></script>
+		</head>
+		<body>
+			<div id="container" class="container" hx-disinherit="*" hx-get={ lazyContentRelativeURL } hx-swap="innerHTML" hx-target="this" hx-trigger="load,force" hx-indicator="#load-body"></div>
+			<div id="load-body" class="htmx-indicator overlay">
+				<div class="big-spinner"></div>
+			</div>
+			<div id="modal-container"></div>
+		</body>
+	</html>
+}

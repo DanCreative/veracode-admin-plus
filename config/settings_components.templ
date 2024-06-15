@@ -1,0 +1,112 @@
+package config
+
+templ ComponentMessage(msg message) {
+	if msg.ShouldShow {
+		<div id="message">
+			<div class={ "alert", templ.KV("success", msg.IsSuccess) }>
+				<div>
+					if msg.IsSuccess {
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"></path></svg>
+					} else {
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg>
+					}
+				</div>
+				<div>
+					<b>{ msg.Text }</b>
+				</div>
+				<div>
+					<span class="alert-close" onclick="$(this).closest('.alert').remove();">&times;</span>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ ComponentSettingsContent(msg message, options settingsOptions, config Config, profiles map[string]Profile) {
+	<h1>Settings</h1>
+	<div>
+		<div id="message">
+			@ComponentMessage(msg)
+		</div>
+		<div class="detail-form-block">
+			<div class="detail-form">
+				if options.RequiresNewProfile {
+					<div class="row">
+						<div class="label">
+							<div>
+								Enter Profile Name:
+								<span class="required">*</span>
+							</div>
+						</div>
+						<div class="form-item">
+							<input type="text" name="profile.name"/>
+						</div>
+					</div>
+					<div class="row">
+						<div class="label">
+							<div>
+								Enter API Key ID:
+								<span class="required">*</span>
+							</div>
+						</div>
+						<div class="form-item">
+							<input type="text" name="profile.key"/>
+						</div>
+					</div>
+					<div class="row">
+						<div class="label">
+							<div>
+								Enter API Key Secret:
+								<span class="required">*</span>
+							</div>
+						</div>
+						<div class="form-item">
+							<input type="password" name="profile.secret"/>
+						</div>
+					</div>
+				} else {
+					<div class="row">
+						<div class="label">
+							<div>
+								Select Profile:
+								<span class="required">*</span>
+							</div>
+						</div>
+						<div>
+							<div class="form-item">
+								<select name="config.profile">
+									for k := range profiles {
+										<option value={ k } selected?={ _,ok := profiles[config.Profile]; ok }>{ k }</option>
+									}
+								</select>
+							</div>
+						</div>
+					</div>
+				}
+				<div class="row">
+					<div class="label">
+						<div>
+							Select Region:
+							<span class="required">*</span>
+						</div>
+					</div>
+					<div>
+						<div class="form-item">
+							<select name="config.region">
+								if config.Region != "https://api.veracode.com" && config.Region != "https://api.veracode.eu" && config.Region != "https://api.veracode.us"&& config.Region != "" {
+									<option value={ config.Region } selected>{ "Other (" + config.Region + ")" }</option>
+								}
+								<option value="https://api.veracode.com" selected?={ config.Region == "https://api.veracode.com" }>{ "Commercial (https://api.veracode.com)" }</option>
+								<option value="https://api.veracode.eu" selected?={ config.Region == "https://api.veracode.eu" }>{ "Europe (https://api.veracode.eu)" }</option>
+								<option value="https://api.veracode.us" selected?={ config.Region == "https://api.veracode.us" }>{ "United State (https://api.veracode.us)" }</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="detail-form-submit">
+					<button hx-put="/api/rest/settings" hx-include="closest div.detail-form" hx-indicator="#load-body" hx-target="#container" hx-swap="innerHTML">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}

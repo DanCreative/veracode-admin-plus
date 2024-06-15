@@ -3,69 +3,40 @@ package admin
 import (
 	"math"
 	"fmt"
+	"strings"
 )
-
-templ PageUsers() {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>Veracode Admin Plus</title>
-			<link rel="stylesheet" href="/assets/chosen.min.css"/>
-			<link rel="stylesheet" href="/assets/index.css"/>
-			<link rel="stylesheet" href="/assets/table.css"/>
-			<script src="/assets/users.js"></script>
-			<script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
-			<script src="https://unpkg.com/htmx.org@1.9.3"></script>
-			<script src="/assets/jquery-3.7.0.min.js"></script>
-			<script src="/assets/chosen.jquery.min.js"></script>
-			<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-		</head>
-		<body>
-			<div id="container" class="container" hx-disinherit="*" hx-get="/api/rest/admin/users" hx-swap="innerHTML" hx-target="this" hx-trigger="load,force" hx-indicator="#load-body"></div>
-			<div id="load-body" class="htmx-indicator overlay">
-				<div id="spinner"></div>
-			</div>
-		</body>
-		<script>
-		// Once elements have been retrieved and loaded into the DOM by HTMX, 
-		// Convert all of the teams multi selects to chosen components 
-		htmx.on("htmx:afterOnLoad", function (evt) {
-			$(".teams-select").chosen({ width: "200px", no_results_text: "No teams found...", placeholder_text_multiple: "Select teams...", display_selected_options: false });
-		});
-		</script>
-	</html>
-}
 
 templ ComponentMessage(msg message) {
 	if msg.ShouldShow {
-		<div class={ "alert", templ.KV("success", msg.IsSuccess) }>
-			<div>
-				if msg.IsSuccess {
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"></path></svg>
-				} else {
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg>
-				}
-			</div>
-			<div>
-				<b>{ msg.Text }</b>
-			</div>
-			<div>
-				<span class="alert-close" onclick="$(this).closest('.alert').remove();">&times;</span>
+		<div id="message">
+			<div class={ "alert", templ.KV("success", msg.IsSuccess) }>
+				<div>
+					if msg.IsSuccess {
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"></path></svg>
+					} else {
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg>
+					}
+				</div>
+				<div>
+					<b>{ msg.Text }</b>
+				</div>
+				<div>
+					<span class="alert-close" onclick="$(this).closest('.alert').remove();">&times;</span>
+				</div>
 			</div>
 		</div>
 	}
 }
 
 templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions, pageMeta PageMeta) {
+	<h1>Users</h1>
 	<div>
-		@ComponentMessage(msg)
+		<div id="message">
+			@ComponentMessage(msg)
+		</div>
 		<div>
 			@ComponentFilterBand(teams, roles, options, pageMeta)
 			@ComponentSearchBand(teams, roles, pageMeta)
-			// TODO: ComponentCartBand
 		</div>
 		<table>
 			<thead>
@@ -85,20 +56,41 @@ templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User
 			</thead>
 			<tbody>
 				for _,user := range users {
-					@ComponentUserTableRow(roles, teams, user, options)
+					@ComponentUserTableRow(roles, teams, user, false)
 				}
 			</tbody>
 		</table>
 		@ComponentTableControlsBand(pageMeta)
 	</div>
+	<script>
+		// Once elements have been retrieved and loaded into the DOM by HTMX, 
+		// Convert all of the teams multi selects to chosen components.
+		$(".teams-select").chosen({ width: "250px", no_results_text: "No teams found...", placeholder_text_multiple: "Select teams...", display_selected_options: false });
+
+		// This was added to allow OOB swaps of the table rows.
+		htmx.config.useTemplateFragments = true;
+	</script>
 }
 
-templ ComponentUserTableRow(roles []Role, teams []Team, user User, options SearchUserOptions) {
-	<tr class={ templ.KV("altered", user.Altered) }>
-		<td class="body-details">{ user.EmailAddress }</td>
+templ ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool) {
+	// HTMX OOB swap attribute can only be added if an OOB swap is required, otherwise it causes issues in the DOM.
+	<tr
+		id={ "tr-user-" + user.UserId }
+		class={ templ.KV("altered", user.Altered) }
+		if oobSwap {
+			hx-swap-oob="true"
+		}
+	>
+		<td class="body-details">
+			{ strings.ToLower(user.EmailAddress) }
+			// Overlay the row with the spinner
+			<div id={ "load-user-" + user.UserId } class="htmx-indicator overlay">
+				<div class="tiny-spinner"></div>
+			</div>
+		</td>
 		<td class="body-details">{ user.AccountType }</td>
 		<td class="body-details">
-			<select multiple name="teams" class="teams-select">
+			<select multiple name="teams" class={ "teams-select", "user-" + user.UserId }>
 				for _, team := range teams {
 					<option value={ team.TeamId } selected?={ user.HasTeam(team.TeamId) }>{ team.TeamName }</option>
 				}
@@ -108,25 +100,35 @@ templ ComponentUserTableRow(roles []Role, teams []Team, user User, options Searc
 			// These are the roles that have their own columns in the table.
 			// Scan Type roles are set in a modal.
 			if !role.IsScanType {
-				if role.IsApi != (options.UserType == "user") {
+				if role.IsApi != (user.AccountType == "USER") {
 					<td>
-						<input type="checkbox" name={ role.RoleName } checked?={ user.HasRole(role.RoleName) }/>
+						<input type="checkbox" onclick="PutUser(event);" class={ "user-" + user.UserId } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } disabled?={ role.RoleName == "extadmin" || (role.RoleName == "teamAdmin" && user.HasRole("extadmin")) }/>
+						if role.RoleName == "extadmin" {
+							// If role is admin, add a hidden input with the value. This is done because admin input is disabled and disabled inputs are ignored in form submits.
+							<input type="checkbox" class={ "user-" + user.UserId } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } hidden/>
+						}
 					</td>
 				}
 			}
 		}
 		<td class="long-cell">
 			<div>
-				<button class="action-button" onclick="ShowActionDropdown(event);">🛠️</button>
-				<div class="dropdown">
-					<ul>
-						<li class="item">Set Governed Teams</li>
-						<li class="item">Set Allowed Scan Types</li>
-					</ul>
-				</div>
+				<button disabled class="user-submit-button" hx-put={ "/api/rest/admin/users/" + user.UserId } hx-target="#modal-container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="closest tr">✔</button>
+				//<button disabled class="user-clear-button">✖</button>
+				// <button class="action-button" onclick="ShowActionDropdown(event);">🛠️</button>
+				// <div class="dropdown">
+				// 	<ul>
+				// 		<li class="item" hx-get={ "/api/rest/admin/users/" + user.UserId + "/edit" } hx-target="#modal-container" hx-swap="innerHTML" hx-indicator="#load-body">Edit</li>
+				// 	</ul>
+				// </div>
 			</div>
 		</td>
 	</tr>
+	if oobSwap {
+		<script>
+			$(".teams-select").chosen({ width: "250px", no_results_text: "No teams found...", placeholder_text_multiple: "Select teams...", display_selected_options: false });
+		</script>
+	}
 }
 
 templ ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions, pageMeta PageMeta) {
@@ -175,9 +177,9 @@ templ ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions,
 					@ComponentFilterPill("Cart", pageMeta.FilterParams["cart"], options.Cart)
 				}
 			</div>
-			// If there are filters, show clear filter button
+			// If there are filters, not including user_type, show clear filter button
 			// TODO: Include page and size in clear filter button request
-			if len(pageMeta.FilterParams) > 0 {
+			if len(pageMeta.FilterParams) > 1 {
 				<button class="filter-clear" hx-get="/api/rest/admin/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Clear Filter</button>
 			}
 		</div>
@@ -211,7 +213,7 @@ templ ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) {
 				<option value="login_status">Login Status</option>
 				<option value="saml_user">SAML</option>
 				<option value="team_id">Team Membership</option>
-				<option value="cart">Cart</option>
+				// <option value="cart">Cart</option>
 			</select>
 			<span>=</span>
 			<select name="" id="filter-options">
@@ -225,8 +227,8 @@ templ ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) {
 				<option hidden class="login_status" value="Never">Never </option>
 				<option hidden class="saml_user" value="Yes">Yes</option>
 				<option hidden class="saml_user" value="No">No</option>
-				<option hidden class="cart" value="Yes">Yes</option>
-				<option hidden class="cart" value="No">No</option>
+				// <option hidden class="cart" value="Yes">Yes</option>
+				// <option hidden class="cart" value="No">No</option>
 				for _, team := range teams {
 					<option hidden class="team_id" value={ team.TeamId }>{ team.TeamName }</option>
 				}
@@ -263,5 +265,91 @@ templ ComponentTableControlsBand(pageMeta PageMeta) {
 				<option value="250" selected?={ pageMeta.Size == 250 }>250 </option>
 			</select>
 		</span>
+	</div>
+}
+
+templ ComponentModalUserEdit(roles []Role, teams []Team, user User) {
+	<div class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5>Submit User</h5>
+				<span class="modal-close" onclick="CloseParentModal(event);">&times;</span>
+			</div>
+			<div class="modal-body">
+				<div class="detail-form">
+					if requiresScanTypeRoles(user.Roles) {
+						<div class="row">
+							<div class="label">
+								<div>
+									Allowed Scan Types:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div>
+								<div class="form-item">
+									// Show if user has submit any scan type role or has no roles
+									<input type="radio" name="scan_radio" checked?={ len(user.GetAnyScanRole())>0 || len(user.ScanTypeRoles) < 1 } onclick="AnyScanTypesSelected(event);"/>
+									<input type="checkbox" id="any-scan-role" name="roles" value={ user.anyScanRoleValue() } hidden checked disabled?={ len(user.GetAnyScanRole()) < 1 && len(user.ScanTypeRoles) > 0 }/>
+									<span>All Scan Types</span>
+								</div>
+								<div class="form-item">
+									// Show if user does not have the any scan type role and has more than 0 roles
+									<input type="radio" name="scan_radio" id="selected-scan-types-radio" checked?={ len(user.GetAnyScanRole())<1 && len(user.ScanTypeRoles) > 0 } onclick="SpecificScanTypesSelected(event);"/>
+									<span>Selected Scan Types</span>
+									<ul class={ "scan-type-list", templ.KV("hide", len(user.GetAnyScanRole()) > 0 || len(user.ScanTypeRoles) < 1) }>
+										for _, role := range roles {
+											if role.IsScanType && (role.RoleName != user.anyScanRoleValue()) {
+												// If the role is a scan type and not ui/api any scan role
+												if role.IsApi != (user.AccountType == "USER") {
+													// If the role is API and the user is API or role is UI and user is UI
+													<li>
+														<input type="checkbox" name="roles" class="nany-scan-role" value={ role.RoleName } disabled?={ len(user.GetAnyScanRole()) > 0 || len(user.ScanTypeRoles) < 1 } checked?={ user.HasScanRole(role.RoleName) }/>
+														<span>{ role.RoleDescription }</span>
+													</li>
+												}
+											}
+										}
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="row hint">
+							<div>
+								The allowed scan types control the type of scan the user can submit.
+							</div>
+						</div>
+					}
+					if user.HasRole("teamAdmin") {
+						<div class="row">
+							<div class="label">
+								<div>
+									Teams This User Manages:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div>
+								<div class="form-item">
+									<select name="teams" multiple>
+										for _, team := range teams {
+											if user.HasTeam(team.TeamId) {
+												<option value={ team.TeamId } selected?={ user.HasAdminTeam(team.TeamId) }>{ team.TeamName }</option>
+											}
+										}
+									</select>
+								</div>
+							</div>
+						</div>
+					}
+					if !user.HasRole("teamAdmin") && !requiresScanTypeRoles(user.Roles) {
+						<div class="row hint">
+							<div>
+								Nothing else to set :)
+							</div>
+						</div>
+					}
+					<button hx-put={ "/api/rest/admin/users/" + user.UserId + "/submit" } hx-vals={ fmt.Sprintf("{\"account_type\": \"%s\"}", user.AccountType) } hx-include="closest div" hx-indicator={ "#load-user-" + user.UserId } hx-on::before-request="CloseParentModal(event);" hx-target="#message" hx-swap="outerHTML">Save</button>
+				</div>
+			</div>
+		</div>
 	</div>
 }

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>name</td>
+                <th>surname</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    Daniel<div class="overlay">
+                        <div id="spinner"></div>
+                    </div>
+                </td>
+                <td>Stadler</td>
+            </tr>
+            <tr>
+                <td>Daniel</td>
+                <td>Stadler</td>
+            </tr>
+            <tr>
+                <td>Daniel</td>
+                <td>Stadler</td>
+            </tr>
+            <tr>
+                <td>Daniel</td>
+                <td>Stadler</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+<style>
+    /* td {
+        position: relative;
+        display: block;
+    } */
+
+    tr {
+        position: relative;
+        height: 100px;
+    }
+
+    .overlay {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        /* height: 100%; */
+        /* width: 100%; */
+        white-space: nowrap;
+        z-index: 1000;
+        background-color: blue;
+        opacity: 0.5;
+    }
+
+    #spinner {
+        position: relative;
+        border: 8px solid #f3f3f3;
+        /* Light grey */
+        border-top: 8px solid #3498db;
+        /* Blue */
+        border-radius: 50%;
+        width: 5px;
+        height: 5px;
+        margin: 0 auto;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+</html>

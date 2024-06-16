@@ -1,8 +1,3 @@
-window.onclick = function (event) {
-    CloseAnyModal(event);
-    CloseDropdowns(event);
-}
-
 // CloseDropdowns closes all dropdowns except for the dropdown that was triggered
 // by the button.
 function CloseDropdowns(event) {
@@ -35,10 +30,6 @@ function CloseParentModal(event) {
 function ShowScanTypesModal(event) {
     console.log($(event.target).parent().next("div"));
     $(event.target).closest("div").next("div").show();
-}
-
-function ShowActionDropdown(event) {
-    $(event.target).next("div").addClass("show");
 }
 
 // CascadeValues is run after the filter by select changes

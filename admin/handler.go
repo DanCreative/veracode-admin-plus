@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -101,9 +100,6 @@ func (u *UserHandler) PreSubmitUserUpdate(w http.ResponseWriter, r *http.Request
 		userErrorMessage(ctx, w, err)
 		return
 	}
-
-	userBytes, _ := json.Marshal(user)
-	fmt.Println(string(userBytes))
 
 	ComponentModalUserEdit(roles, teams, user).Render(r.Context(), w)
 }

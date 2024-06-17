@@ -1,9 +1,12 @@
+:root {
+    --table-border-width: 1px;
+}
+
 .user-content {
     width: max-content;
 }
 
 table {
-    --table-border-width: var(--bs-border-width);
     border-collapse: collapse;
     border: var(--table-border-width) solid var(--bs-border-color);
 }

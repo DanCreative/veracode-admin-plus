@@ -28,83 +28,88 @@ templ ComponentSettingsContent(msg message, options settingsOptions, config Conf
 		<div id="message">
 			@ComponentMessage(msg)
 		</div>
-		<div class="detail-form-block">
-			<div class="detail-form">
-				if options.RequiresNewProfile {
-					<div class="row">
-						<div class="label">
-							<div>
-								Enter Profile Name:
-								<span class="required">*</span>
+		<div class="settings-content border">
+			<div class="detail-form-block border">
+				<div class="title-row">
+					<span>Veracode Connection</span>
+				</div>
+				<div class="detail-form">
+					if options.RequiresNewProfile {
+						<div class="row">
+							<div class="label">
+								<div>
+									Enter Profile Name:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div class="form-item">
+								<input type="text" name="profile.name"/>
 							</div>
 						</div>
-						<div class="form-item">
-							<input type="text" name="profile.name"/>
-						</div>
-					</div>
-					<div class="row">
-						<div class="label">
-							<div>
-								Enter API Key ID:
-								<span class="required">*</span>
+						<div class="row">
+							<div class="label">
+								<div>
+									Enter API Key ID:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div class="form-item">
+								<input type="text" name="profile.key"/>
 							</div>
 						</div>
-						<div class="form-item">
-							<input type="text" name="profile.key"/>
-						</div>
-					</div>
-					<div class="row">
-						<div class="label">
-							<div>
-								Enter API Key Secret:
-								<span class="required">*</span>
+						<div class="row">
+							<div class="label">
+								<div>
+									Enter API Key Secret:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div class="form-item">
+								<input type="password" name="profile.secret"/>
 							</div>
 						</div>
-						<div class="form-item">
-							<input type="password" name="profile.secret"/>
+					} else {
+						<div class="row">
+							<div class="label">
+								<div>
+									Select Profile:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div>
+								<div class="form-item">
+									<select name="config.profile">
+										for k := range profiles {
+											<option value={ k } selected?={ _,ok := profiles[config.Profile]; ok }>{ k }</option>
+										}
+									</select>
+								</div>
+							</div>
 						</div>
-					</div>
-				} else {
+					}
 					<div class="row">
 						<div class="label">
 							<div>
-								Select Profile:
+								Select Region:
 								<span class="required">*</span>
 							</div>
 						</div>
 						<div>
 							<div class="form-item">
-								<select name="config.profile">
-									for k := range profiles {
-										<option value={ k } selected?={ _,ok := profiles[config.Profile]; ok }>{ k }</option>
+								<select name="config.region">
+									if config.Region != "https://api.veracode.com" && config.Region != "https://api.veracode.eu" && config.Region != "https://api.veracode.us"&& config.Region != "" {
+										<option value={ config.Region } selected>{ "Other (" + config.Region + ")" }</option>
 									}
+									<option value="https://api.veracode.com" selected?={ config.Region == "https://api.veracode.com" }>{ "Commercial (https://api.veracode.com)" }</option>
+									<option value="https://api.veracode.eu" selected?={ config.Region == "https://api.veracode.eu" }>{ "Europe (https://api.veracode.eu)" }</option>
+									<option value="https://api.veracode.us" selected?={ config.Region == "https://api.veracode.us" }>{ "United State (https://api.veracode.us)" }</option>
 								</select>
 							</div>
 						</div>
 					</div>
-				}
-				<div class="row">
-					<div class="label">
-						<div>
-							Select Region:
-							<span class="required">*</span>
-						</div>
+					<div class="detail-form-submit">
+						<button hx-put="/api/rest/settings" hx-include="closest div.detail-form" hx-indicator="#load-body" hx-target="#container" hx-swap="innerHTML">Save</button>
 					</div>
-					<div>
-						<div class="form-item">
-							<select name="config.region">
-								if config.Region != "https://api.veracode.com" && config.Region != "https://api.veracode.eu" && config.Region != "https://api.veracode.us"&& config.Region != "" {
-									<option value={ config.Region } selected>{ "Other (" + config.Region + ")" }</option>
-								}
-								<option value="https://api.veracode.com" selected?={ config.Region == "https://api.veracode.com" }>{ "Commercial (https://api.veracode.com)" }</option>
-								<option value="https://api.veracode.eu" selected?={ config.Region == "https://api.veracode.eu" }>{ "Europe (https://api.veracode.eu)" }</option>
-								<option value="https://api.veracode.us" selected?={ config.Region == "https://api.veracode.us" }>{ "United State (https://api.veracode.us)" }</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				<div class="detail-form-submit">
-					<button hx-put="/api/rest/settings" hx-include="closest div.detail-form" hx-indicator="#load-body" hx-target="#container" hx-swap="innerHTML">Save</button>
 				</div>
 			</div>
 		</div>

@@ -107,7 +107,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"detail-form-block\"><div class=\"detail-form\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"settings-content border\"><div class=\"detail-form-block border\"><div class=\"title-row\"><span>Veracode Connection</span></div><div class=\"detail-form\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -129,7 +129,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(k)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 79, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 83, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -152,7 +152,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(k)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 79, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 83, Col: 85}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(config.Region)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 97, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 101, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -193,7 +193,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("Other (" + config.Region + ")")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 97, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 101, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs("Commercial (https://api.veracode.com)")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 99, Col: 148}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 103, Col: 149}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -244,7 +244,7 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("Europe (https://api.veracode.eu)")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 100, Col: 141}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 104, Col: 142}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -267,13 +267,13 @@ func ComponentSettingsContent(msg message, options settingsOptions, config Confi
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs("United State (https://api.veracode.us)")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 101, Col: 147}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `config\settings_components.templ`, Line: 105, Col: 148}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</option></select></div></div></div><div class=\"detail-form-submit\"><button hx-put=\"/api/rest/settings\" hx-include=\"closest div.detail-form\" hx-indicator=\"#load-body\" hx-target=\"#container\" hx-swap=\"innerHTML\">Save</button></div></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</option></select></div></div></div><div class=\"detail-form-submit\"><button hx-put=\"/api/rest/settings\" hx-include=\"closest div.detail-form\" hx-indicator=\"#load-body\" hx-target=\"#container\" hx-swap=\"innerHTML\">Save</button></div></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

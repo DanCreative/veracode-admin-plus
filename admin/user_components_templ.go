@@ -105,7 +105,7 @@ func ComponentUserContent(msg message, teams []Team, roles []Role, users []User,
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Users</h1><div><div id=\"message\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Users</h1><div class=\"user-content\"><div id=\"message\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -296,7 +296,7 @@ func ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" onchange=\"PutUser(event);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -357,7 +357,7 @@ func ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var18 = []any{"user-" + user.UserId}
+					var templ_7745c5c3_Var18 = []any{"user-" + user.UserId, "form-check-input"}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var18...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -382,7 +382,7 @@ func ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool) 
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(role.RoleName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 105, Col: 121}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 105, Col: 141}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -466,14 +466,14 @@ func ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool) 
 				}
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td class=\"long-cell\"><div><button disabled class=\"user-submit-button\" hx-put=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td class=\"long-cell\"><div><button disabled class=\"user-submit-button btn btn-primary btn-sm\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs("/api/rest/admin/users/" + user.UserId)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 116, Col: 95}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin\user_components.templ`, Line: 116, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -679,7 +679,7 @@ func ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) templ.Co
 			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"band-filters\"><div><input type=\"search\" id=\"search_term\" name=\"search_term\" placeholder=\"Search by name, username, email, or API ID\"> <button hx-get=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"band-filters\"><div class=\"search-filter-group\"><input type=\"search\" id=\"search_term\" name=\"search_term\" placeholder=\"Search by name, username, email, or API ID\"> <button hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -30,7 +30,7 @@ templ ComponentMessage(msg message) {
 
 templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions, pageMeta PageMeta) {
 	<h1>Users</h1>
-	<div>
+	<div class="user-content">
 		<div id="message">
 			@ComponentMessage(msg)
 		</div>
@@ -90,7 +90,7 @@ templ ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool)
 		</td>
 		<td class="body-details">{ user.AccountType }</td>
 		<td class="body-details">
-			<select multiple name="teams" class={ "teams-select", "user-" + user.UserId }>
+			<select multiple name="teams" class={ "teams-select", "user-" + user.UserId } onchange="PutUser(event);">
 				for _, team := range teams {
 					<option value={ team.TeamId } selected?={ user.HasTeam(team.TeamId) }>{ team.TeamName }</option>
 				}
@@ -102,7 +102,7 @@ templ ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool)
 			if !role.IsScanType {
 				if role.IsApi != (user.AccountType == "USER") {
 					<td>
-						<input type="checkbox" onclick="PutUser(event);" class={ "user-" + user.UserId } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } disabled?={ role.RoleName == "extadmin" || (role.RoleName == "teamAdmin" && user.HasRole("extadmin")) }/>
+						<input type="checkbox" onclick="PutUser(event);" class={ "user-" + user.UserId, "form-check-input" } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } disabled?={ role.RoleName == "extadmin" || (role.RoleName == "teamAdmin" && user.HasRole("extadmin")) }/>
 						if role.RoleName == "extadmin" {
 							// If role is admin, add a hidden input with the value. This is done because admin input is disabled and disabled inputs are ignored in form submits.
 							<input type="checkbox" class={ "user-" + user.UserId } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } hidden/>
@@ -113,7 +113,7 @@ templ ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool)
 		}
 		<td class="long-cell">
 			<div>
-				<button disabled class="user-submit-button" hx-put={ "/api/rest/admin/users/" + user.UserId } hx-target="#modal-container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="closest tr">✔</button>
+				<button disabled class="user-submit-button btn btn-primary btn-sm" hx-put={ "/api/rest/admin/users/" + user.UserId } hx-target="#modal-container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="closest tr">✔</button>
 				//<button disabled class="user-clear-button">✖</button>
 				// <button class="action-button" onclick="ShowActionDropdown(event);">🛠️</button>
 				// <div class="dropdown">
@@ -199,7 +199,7 @@ templ ComponentFilterPill(label, deleteParams, value string) {
 
 templ ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) {
 	<div class="band-filters">
-		<div>
+		<div class="search-filter-group">
 			<input type="search" id="search_term" name="search_term" placeholder="Search by name, username, email, or API ID"/>
 			<button hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#search_term">Go</button>
 		</div>

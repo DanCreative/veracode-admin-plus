@@ -2,20 +2,21 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
+	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 
-	"github.com/DanCreative/veracode-admin-plus/handlers"
-	"github.com/DanCreative/veracode-admin-plus/initializers"
-	"github.com/DanCreative/veracode-admin-plus/utils"
-	"github.com/DanCreative/veracode-admin-plus/veracode"
+	"github.com/DanCreative/veracode-admin-plus/admin"
+	"github.com/DanCreative/veracode-admin-plus/admin/backend"
+	"github.com/DanCreative/veracode-admin-plus/admin/demo"
+	"github.com/DanCreative/veracode-admin-plus/config"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -24,87 +25,73 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-	// ---------------------- CONFIG ------------------------------
 
-	config, err := initializers.NewConfig()
+	// Config
+	homeDir, err := os.UserHomeDir()
 	check(err)
+	appService := config.NewApplicationConfigService(path.Join(homeDir, ".veracode"))
+	appService.SetClient()
 
-	// ---------------------- LOGGING ------------------------------
+	// Services
+	var userService admin.UserService
 
-	logrus.SetLevel(logrus.InfoLevel)
+	// Demo Mode
+	demoDataFolderPath := path.Join(homeDir, ".veracode", "veracode_admin_plus", "data", "demo")
+	var mode string
 
-	// ---------------------- CLIENT ------------------------------
+	if _, err := os.Stat(demoDataFolderPath); err == nil {
+		// Start in demo mode
+		userRepo := demo.NewDemoUserRepository(demoDataFolderPath)
+		roleRepo := demo.NewDemoRoleRepository(demoDataFolderPath)
+		teamRepo := demo.NewDemoTeamRepository(demoDataFolderPath)
 
-	transport, err := veracode.NewAuthTransport(nil, config.Key, config.Secret)
-	check(err)
+		userService = admin.NewUserService(userRepo, roleRepo, teamRepo)
+		mode = "DEMO"
+	} else {
+		userRepo := backend.NewBasicBackendRepository(appService.GetClient)
+		roleRepo := backend.NewRoleRepository(appService.GetClient)
+		teamRepo := backend.NewTeamRepository(appService.GetClient)
 
-	client, err := veracode.NewClient(config.BaseURL, transport.Client())
-	check(err)
-
-	err = client.GetRoles()
-	check(err)
-
-	// ---------------------- TEMPLATES ------------------------------
-
-	indexFile, err := os.ReadFile("html/index.html")
-	check(err)
-
-	indexTemplate, err := template.New("webpage").Parse(string(indexFile))
-	check(err)
-
-	tableTemplate, err := template.New("table").ParseFiles(
-		"html/table/table.html",
-		"html/table/body.html",
-		"html/table/headers.html",
-		"html/table/controls.html",
-		"html/table/title.html",
-		"html/table/message.html",
-	)
-	check(err)
-
-	// ---------------------- HANDLERS ------------------------------
-
-	cartHandler := handlers.NewCartHandler(client)
-	userHandler := handlers.NewUserHandler(tableTemplate, client, &cartHandler)
-
-	pageHandler := handlers.PageHandler{
-		Page: indexTemplate,
+		userService = admin.NewUserService(userRepo, roleRepo, teamRepo)
+		mode = "NORMAL"
 	}
 
-	// ---------------------- ROUTER ------------------------------
+	// Handlers
+	userHandler := admin.NewUserHandler(userService)
+	settingsHandler := config.NewSettingsHandler(appService)
 
-	router := chi.NewRouter()
-	router.Use(middleware.Logger)
+	// Routes : Pages
+	r := chi.NewRouter()
+	r.Get("/admin/users", userHandler.AdminUsersPage)
+	r.Get("/settings", settingsHandler.SettingsPage)
 
-	router.Get("/", pageHandler.GetIndex)
-	router.Route("/users", func(r chi.Router) {
-		r.Get("/", userHandler.GetTable)
-		r.Delete("/filters", userHandler.DeleteFilters)
-		r.Delete("/filters/{filterID}", userHandler.DeleteFilter)
-	})
+	// Routes : API
+	r.Get("/api/rest/admin/users", userHandler.GetUsers)
+	r.Put("/api/rest/admin/users/{userID}", userHandler.PreSubmitUserUpdate)
+	r.Put("/api/rest/admin/users/{userID}/submit", userHandler.SubmitUser)
+	r.Get("/api/rest/settings", settingsHandler.GetSettings)
+	r.Put("/api/rest/settings", settingsHandler.UpdateSettings)
 
-	router.Route("/cart", func(r chi.Router) {
-		r.Post("/submit", userHandler.SubmitCart)
-		r.Delete("/", userHandler.DeleteUsers)
+	// File Service
 
-		r.Route("/users", func(r chi.Router) {
-			r.Route("/{userID}", func(r chi.Router) {
-				r.Put("/", cartHandler.PutUser)
-			})
-		})
-	})
+	filesDir := http.Dir(filepath.Join(homeDir, ".veracode", "veracode_admin_plus", "assets"))
+	FileServer(r, "/assets", filesDir)
 
-	// ---------------------- FILE SERVER ------------------------------
+	// Start up
+	listener, err := net.Listen("tcp", "localhost:0")
+	check(err)
 
-	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "assets"))
-	FileServer(router, "/assets", filesDir)
+	startPagePath := "/admin/users"
+	_, err = appService.GetClient()
+	if err != nil {
+		startPagePath = "/settings"
+	}
 
-	// ---------------------- START ------------------------------
+	homeURL := fmt.Sprintf("http://localhost:%d%s", listener.Addr().(*net.TCPAddr).Port, startPagePath)
+	fmt.Printf("Successfully started application in %s mode. Navigate to: %s\n", mode, homeURL)
 
-	host := fmt.Sprintf("localhost:%d", config.Port)
-	utils.OpenBrowser("http://" + host)
-	log.Fatal(http.ListenAndServe(host, router))
+	OpenBrowser(homeURL)
+	log.Fatal(http.Serve(listener, r))
 }
 
 // FileServer conveniently sets up a http.FileServer handler to serve
@@ -126,4 +113,23 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
 		fs.ServeHTTP(w, r)
 	})
+}
+
+// OpenBrowser runs an OS command to open the application in the browser.
+// This function currently supports: Windows, Darwin and Linux
+func OpenBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }

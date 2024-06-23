@@ -1,0 +1,230 @@
+:root {
+    --table-border-width: 1px;
+}
+
+.user-content {
+    width: max-content;
+}
+
+table {
+    border-collapse: collapse;
+    border: var(--table-border-width) solid var(--bs-border-color);
+}
+
+th.rotate {
+    white-space: nowrap;
+    position: relative;
+}
+
+th.rotate>div {
+    /* place div at bottom left of the th parent */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* Make sure short labels still meet the corner of the parent otherwise you'll get a gap */
+    text-align: left;
+    /* Move the top left corner of the span's bottom-border to line up with the top left corner of the td's border-right border so that the border corners are matched
+    * Rotate 315 (-45) degrees about matched border corners */
+    transform:
+        translate(calc(100% - var(--table-border-width) / 2), var(--table-border-width)) rotate(315deg);
+    transform-origin: 0% calc(100% - var(--table-border-width));
+    width: 100%;
+}
+
+th.rotate>div>span {
+    /* make sure the bottom of the span is matched up with the bottom of the parent div */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-bottom: var(--table-border-width) solid var(--bs-border-color);
+}
+
+tr {
+    border-bottom: var(--table-border-width) solid var(--bs-border-color);
+    transition: background-color 450ms linear;
+    position: relative;
+}
+
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr.altered {
+    background-color: rgb(255, 255, 75);
+}
+
+tr.altered:nth-child(even) {
+    background-color: rgb(239, 239, 75);
+}
+
+td {
+    border-right: var(--table-border-width) solid var(--bs-border-color);
+    border-left: var(--table-border-width) solid var(--bs-border-color);
+    /* make sure this is at least as wide as sqrt(2) * height of the tallest letter in your font or the headers will overlap each other*/
+    min-width: 30px;
+    /* padding-top: 2px;
+    padding-left: 5px; */
+    text-align: center;
+}
+
+th {
+    min-width: 30px;
+    height: 115px;
+    color: #6b778c;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.66666667;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+th.email {
+    min-width: 200px;
+}
+
+.header-details {
+    vertical-align: bottom;
+    text-align: left;
+    padding-left: 5px;
+    padding-right: 10px;
+}
+
+.body-details {
+    vertical-align: center;
+    text-align: left;
+    padding-left: 5px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.long-cell {
+    min-width: 80px;
+}
+
+td.long-cell>div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-left: 5px;
+    padding-right: 5px;
+    gap: 3px;
+}
+
+.last-header {
+    text-align: center;
+}
+
+.filters-with-button {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    place-content: center flex-start;
+    margin: 0;
+}
+
+.filter-clear {
+    margin: 0 10px;
+    white-space: nowrap;
+}
+
+.filter-filter {
+    border-radius: 100px;
+    color: #333;
+    background: #eee;
+    display: inline-block;
+    height: 26px;
+    font-size: 12px;
+    margin: 0 0 5px 10px;
+    padding: 2px 8px 2px 12px;
+}
+
+.filter-filter svg {
+    vertical-align: middle;
+    fill: currentColor;
+    cursor: pointer;
+}
+
+.filter-filter svg:hover {
+    color: #0aa2dc;
+    font-weight: 400;
+}
+
+.filter-filter span {
+    vertical-align: middle
+}
+
+.filter-filter .filter-label {
+    font-weight: 700
+}
+
+#search_term {
+    width: 290px;
+}
+
+select:invalid {
+    color: gray;
+}
+
+.band-controls {
+    text-align: center;
+    align-items: center;
+    margin-top: 10px;
+    padding: 5px 10px 4px 10px;
+    display: flex;
+    flex-direction: row;
+    border: var(--table-border-width) solid var(--bs-border-color);
+    font-size: 12px;
+}
+
+.band-filters {
+    border-left: var(--table-border-width) solid var(--bs-border-color);
+    border-right: var(--table-border-width) solid var(--bs-border-color);
+    border-top: var(--table-border-width) solid var(--bs-border-color);
+    padding: 7px 10px 5px 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.band-title {
+    border-left: var(--table-border-width) solid var(--bs-border-color);
+    border-right: var(--table-border-width) solid var(--bs-border-color);
+    border-top: var(--table-border-width) solid var(--bs-border-color);
+    padding: 10px 0 10px 10px;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: flex-start;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #555;
+}
+
+.band-title .title {
+    font-size: 16px;
+    font-family: Fira Sans, Arial, sans-serif;
+    color: #333;
+    padding-right: 3px;
+    margin-top: 3px;
+    flex: 0 0 auto;
+}
+
+.band-title .filters-with-button {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    place-content: center flex-start;
+}
+
+.grid-paging-summary-panel {
+    flex-grow: 3;
+}
+
+.scan-type-list {
+    list-style: none;
+}

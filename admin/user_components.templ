@@ -1,0 +1,355 @@
+package admin
+
+import (
+	"math"
+	"fmt"
+	"strings"
+)
+
+templ ComponentMessage(msg message) {
+	if msg.ShouldShow {
+		<div id="message">
+			<div class={ "alert", templ.KV("success", msg.IsSuccess) }>
+				<div>
+					if msg.IsSuccess {
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"></path></svg>
+					} else {
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg>
+					}
+				</div>
+				<div>
+					<b>{ msg.Text }</b>
+				</div>
+				<div>
+					<span class="alert-close" onclick="$(this).closest('.alert').remove();">&times;</span>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ ComponentUserContent(msg message, teams []Team, roles []Role, users []User, options SearchUserOptions, pageMeta PageMeta) {
+	<h1>Users</h1>
+	<div class="user-content">
+		<div id="message">
+			@ComponentMessage(msg)
+		</div>
+		<div>
+			@ComponentFilterBand(teams, roles, options, pageMeta)
+			@ComponentSearchBand(teams, roles, pageMeta)
+		</div>
+		<table>
+			<thead>
+				<tr>
+					<th class="header-details email">Email</th>
+					<th class="header-details">User Type</th>
+					<th class="header-details">Team(s)</th>
+					for _,role := range roles {
+						if !role.IsScanType {
+							if role.IsApi != (options.UserType == "user") {
+								<th class="rotate"><div><span>{ role.RoleDescription }</span></div></th>
+							}
+						}
+					}
+					<th class="last-header header-details">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _,user := range users {
+					@ComponentUserTableRow(roles, teams, user, false)
+				}
+			</tbody>
+		</table>
+		@ComponentTableControlsBand(pageMeta)
+	</div>
+	<script>
+		// Once elements have been retrieved and loaded into the DOM by HTMX, 
+		// Convert all of the teams multi selects to chosen components.
+		$(".teams-select").chosen({ width: "250px", no_results_text: "No teams found...", placeholder_text_multiple: "Select teams...", display_selected_options: false });
+
+		// This was added to allow OOB swaps of the table rows.
+		htmx.config.useTemplateFragments = true;
+	</script>
+}
+
+templ ComponentUserTableRow(roles []Role, teams []Team, user User, oobSwap bool) {
+	// HTMX OOB swap attribute can only be added if an OOB swap is required, otherwise it causes issues in the DOM.
+	<tr
+		id={ "tr-user-" + user.UserId }
+		class={ templ.KV("altered", user.Altered) }
+		if oobSwap {
+			hx-swap-oob="true"
+		}
+	>
+		<td class="body-details">
+			{ strings.ToLower(user.EmailAddress) }
+			// Overlay the row with the spinner
+			<div id={ "load-user-" + user.UserId } class="htmx-indicator overlay">
+				<div class="tiny-spinner"></div>
+			</div>
+		</td>
+		<td class="body-details">{ user.AccountType }</td>
+		<td class="body-details">
+			<select multiple name="teams" class={ "teams-select", "user-" + user.UserId } onchange="PutUser(event);">
+				for _, team := range teams {
+					<option value={ team.TeamId } selected?={ user.HasTeam(team.TeamId) }>{ team.TeamName }</option>
+				}
+			</select>
+		</td>
+		for _, role := range roles {
+			// These are the roles that have their own columns in the table.
+			// Scan Type roles are set in a modal.
+			if !role.IsScanType {
+				if role.IsApi != (user.AccountType == "USER") {
+					<td>
+						<input type="checkbox" onclick="PutUser(event);" class={ "user-" + user.UserId, "form-check-input" } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } disabled?={ role.RoleName == "extadmin" || (role.RoleName == "teamAdmin" && user.HasRole("extadmin")) }/>
+						if role.RoleName == "extadmin" {
+							// If role is admin, add a hidden input with the value. This is done because admin input is disabled and disabled inputs are ignored in form submits.
+							<input type="checkbox" class={ "user-" + user.UserId } name="roles" value={ role.RoleName } checked?={ user.HasRole(role.RoleName) } hidden/>
+						}
+					</td>
+				}
+			}
+		}
+		<td class="long-cell">
+			<div>
+				<button disabled class="user-submit-button btn btn-primary btn-sm" hx-put={ "/api/rest/admin/users/" + user.UserId } hx-target="#modal-container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="closest tr">✔</button>
+				//<button disabled class="user-clear-button">✖</button>
+				// <button class="action-button" onclick="ShowActionDropdown(event);">🛠️</button>
+				// <div class="dropdown">
+				// 	<ul>
+				// 		<li class="item" hx-get={ "/api/rest/admin/users/" + user.UserId + "/edit" } hx-target="#modal-container" hx-swap="innerHTML" hx-indicator="#load-body">Edit</li>
+				// 	</ul>
+				// </div>
+			</div>
+		</td>
+	</tr>
+	if oobSwap {
+		<script>
+			$(".teams-select").chosen({ width: "250px", no_results_text: "No teams found...", placeholder_text_multiple: "Select teams...", display_selected_options: false });
+		</script>
+	}
+}
+
+templ ComponentFilterBand(teams []Team, roles []Role, options SearchUserOptions, pageMeta PageMeta) {
+	<div class="band-title">
+		<div class="title">All Users</div>
+		<div class="filters-with-button">
+			<div class="filter-all">
+				// "Iterating" over SearchUserOptions
+				if options.UserType != "" {
+					if options.UserType == "user" {
+						@ComponentFilterPill("User Type", pageMeta.FilterParams["user_type"], "UI User")
+					} else if options.UserType == "api" {
+						@ComponentFilterPill("User Type", pageMeta.FilterParams["user_type"], "API User")
+					}
+				}
+				if options.SearchTerm != "" {
+					@ComponentFilterPill("Search Term", pageMeta.FilterParams["search_term"], options.SearchTerm)
+				}
+				if options.RoleId != "" {
+					for _, role := range roles {
+						if role.RoleId == options.RoleId {
+							@ComponentFilterPill("Role", pageMeta.FilterParams["role_id"], role.RoleDescription)
+						}
+					}
+				}
+				if options.TeamId != "" {
+					for _, team := range teams {
+						if team.TeamId == options.TeamId {
+							@ComponentFilterPill("Team Membership", pageMeta.FilterParams["team_id"], team.TeamName)
+						}
+					}
+				}
+				if options.ApiId != "" {
+					@ComponentFilterPill("Search Term", pageMeta.FilterParams["api_id"], options.ApiId)
+				}
+				if options.LoginEnabled != "" {
+					@ComponentFilterPill("Login Enabled", pageMeta.FilterParams["login_enabled"], options.LoginEnabled)
+				}
+				if options.LoginStatus != "" {
+					@ComponentFilterPill("Login Status", pageMeta.FilterParams["login_status"], options.LoginStatus)
+				}
+				if options.SamlUser != "" {
+					@ComponentFilterPill("SAML", pageMeta.FilterParams["saml_user"], options.SamlUser)
+				}
+				if options.Cart != "" {
+					@ComponentFilterPill("Cart", pageMeta.FilterParams["cart"], options.Cart)
+				}
+			</div>
+			// If there are filters, not including user_type, show clear filter button
+			// TODO: Include page and size in clear filter button request
+			if len(pageMeta.FilterParams) > 1 {
+				<button class="filter-clear" hx-get="/api/rest/admin/users" hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">Clear Filter</button>
+			}
+		</div>
+	</div>
+}
+
+templ ComponentFilterPill(label, deleteParams, value string) {
+	<div class="filter-filter">
+		<span class="filter-label">{ label }</span>
+		<span class="equals-sign">=</span>
+		<span class="filter-value">{ value }</span>
+		<svg hx-get={ "/api/rest/admin/users?" + deleteParams } hx-swap="innerHTML" hx-target="#container" hx-indicator="#load-body" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 50 50">
+			<path d="M 25 2 C 12.309534 2 2 12.309534 2 25 C 2 37.690466 12.309534 48 25 48 C 37.690466 48 48 37.690466 48 25 C 48 12.309534 37.690466 2 25 2 z M 25 4 C 36.609534 4 46 13.390466 46 25 C 46 36.609534 36.609534 46 25 46 C 13.390466 46 4 36.609534 4 25 C 4 13.390466 13.390466 4 25 4 z M 32.990234 15.986328 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.990234 15.986328 z"></path>
+		</svg>
+	</div>
+}
+
+templ ComponentSearchBand(teams []Team, roles []Role, pageMeta PageMeta) {
+	<div class="band-filters">
+		<div class="search-filter-group">
+			<input type="search" id="search_term" name="search_term" placeholder="Search by name, username, email, or API ID"/>
+			<button hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#search_term">Go</button>
+		</div>
+		<div>
+			<span>Filter by</span>
+			<select onchange="CascadeValues(this.value)">
+				<option disabled selected hidden>Select</option>
+				<option value="role_id">Role</option>
+				<option value="user_type">User Type</option>
+				<option value="login_enabled">Login Enabled</option>
+				<option value="login_status">Login Status</option>
+				<option value="saml_user">SAML</option>
+				<option value="team_id">Team Membership</option>
+				// <option value="cart">Cart</option>
+			</select>
+			<span>=</span>
+			<select name="" id="filter-options">
+				<option disabled selected hidden>Select</option>
+				<option hidden class="user_type" value="user">UI User</option>
+				<option hidden class="user_type" value="api">API User</option>
+				<option hidden class="login_enabled" value="Yes">Yes</option>
+				<option hidden class="login_enabled" value="No">No</option>
+				<option hidden class="login_status" value="Active">Active </option>
+				<option hidden class="login_status" value="Locked">Locked </option>
+				<option hidden class="login_status" value="Never">Never </option>
+				<option hidden class="saml_user" value="Yes">Yes</option>
+				<option hidden class="saml_user" value="No">No</option>
+				// <option hidden class="cart" value="Yes">Yes</option>
+				// <option hidden class="cart" value="No">No</option>
+				for _, team := range teams {
+					<option hidden class="team_id" value={ team.TeamId }>{ team.TeamName }</option>
+				}
+				for _, role := range roles {
+					<option hidden class="role_id" value={ role.RoleId }>{ role.RoleDescription }</option>
+				}
+			</select>
+			<button hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body" hx-include="#filter-options">Apply</button>
+		</div>
+	</div>
+}
+
+templ ComponentTableControlsBand(pageMeta PageMeta) {
+	<div class="band-controls">
+		// Example output of below statement will be: 71 - 80 of 120
+		// Handles case where the last page has fewer items than the size
+		<div>{ fmt.Sprint((pageMeta.PageNumber * pageMeta.Size) + 1) + " - " + fmt.Sprint(int(math.Min(float64((pageMeta.PageNumber*pageMeta.Size)+pageMeta.Size), float64(pageMeta.TotalElements)))) + " of " + fmt.Sprint(pageMeta.TotalElements) }</div>
+		<span class="grid-paging-summary-panel">
+			<button type="button" disabled?={ pageMeta.SelfParams == pageMeta.FirstParams || pageMeta.FirstParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.FirstParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">◀◀ </button>
+			<button type="button" disabled?={ pageMeta.PrevParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.PrevParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">◀ </button>
+			// TODO: Post page number from input to backend, but reduce by 1
+			<input name="page" value={ fmt.Sprint(pageMeta.PageNumber + 1) } disabled/>
+			<span>{ "of " + fmt.Sprint(pageMeta.TotalPages) }</span>
+			<button type="button" disabled?={ pageMeta.NextParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.NextParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">▶ </button>
+			<button type="button" disabled?={ pageMeta.SelfParams == pageMeta.LastParams || pageMeta.LastParams == "" } hx-get={ "/api/rest/admin/users?" + pageMeta.LastParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">▶▶ </button>
+		</span>
+		<span>
+			<label for="users-1-row-select">Rows</label>
+			<select id="users-1-row-select" name="size" hx-get={ "/api/rest/admin/users?" + pageMeta.SelfParams } hx-target="#container" hx-swap="innerHTML" hx-indicator="#load-body">
+				<option value="10" selected?={ pageMeta.Size == 10 }>10 </option>
+				<option value="25" selected?={ pageMeta.Size == 25 }>25 </option>
+				<option value="50" selected?={ pageMeta.Size == 50 }>50 </option>
+				<option value="100" selected?={ pageMeta.Size == 100 }>100 </option>
+				<option value="250" selected?={ pageMeta.Size == 250 }>250 </option>
+			</select>
+		</span>
+	</div>
+}
+
+templ ComponentModalUserEdit(roles []Role, teams []Team, user User) {
+	<div class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5>Submit User</h5>
+				<span class="modal-close" onclick="CloseParentModal(event);">&times;</span>
+			</div>
+			<div class="modal-body">
+				<div class="detail-form">
+					if requiresScanTypeRoles(user.Roles) {
+						<div class="row">
+							<div class="label">
+								<div>
+									Allowed Scan Types:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div>
+								<div class="form-item">
+									// Show if user has submit any scan type role or has no roles
+									<input type="radio" name="scan_radio" checked?={ len(user.GetAnyScanRole())>0 || len(user.ScanTypeRoles) < 1 } onclick="AnyScanTypesSelected(event);"/>
+									<input type="checkbox" id="any-scan-role" name="roles" value={ user.anyScanRoleValue() } hidden checked disabled?={ len(user.GetAnyScanRole()) < 1 && len(user.ScanTypeRoles) > 0 }/>
+									<span>All Scan Types</span>
+								</div>
+								<div class="form-item">
+									// Show if user does not have the any scan type role and has more than 0 roles
+									<input type="radio" name="scan_radio" id="selected-scan-types-radio" checked?={ len(user.GetAnyScanRole())<1 && len(user.ScanTypeRoles) > 0 } onclick="SpecificScanTypesSelected(event);"/>
+									<span>Selected Scan Types</span>
+									<ul class={ "scan-type-list", templ.KV("hide", len(user.GetAnyScanRole()) > 0 || len(user.ScanTypeRoles) < 1) }>
+										for _, role := range roles {
+											if role.IsScanType && (role.RoleName != user.anyScanRoleValue()) {
+												// If the role is a scan type and not ui/api any scan role
+												if role.IsApi != (user.AccountType == "USER") {
+													// If the role is API and the user is API or role is UI and user is UI
+													<li>
+														<input type="checkbox" name="roles" class="nany-scan-role" value={ role.RoleName } disabled?={ len(user.GetAnyScanRole()) > 0 || len(user.ScanTypeRoles) < 1 } checked?={ user.HasScanRole(role.RoleName) }/>
+														<span>{ role.RoleDescription }</span>
+													</li>
+												}
+											}
+										}
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="row hint">
+							<div>
+								The allowed scan types control the type of scan the user can submit.
+							</div>
+						</div>
+					}
+					if user.HasRole("teamAdmin") {
+						<div class="row">
+							<div class="label">
+								<div>
+									Teams This User Manages:
+									<span class="required">*</span>
+								</div>
+							</div>
+							<div>
+								<div class="form-item">
+									<select name="teams" multiple>
+										for _, team := range teams {
+											if user.HasTeam(team.TeamId) {
+												<option value={ team.TeamId } selected?={ user.HasAdminTeam(team.TeamId) }>{ team.TeamName }</option>
+											}
+										}
+									</select>
+								</div>
+							</div>
+						</div>
+					}
+					if !user.HasRole("teamAdmin") && !requiresScanTypeRoles(user.Roles) {
+						<div class="row hint">
+							<div>
+								Nothing else to set :)
+							</div>
+						</div>
+					}
+					<button hx-put={ "/api/rest/admin/users/" + user.UserId + "/submit" } hx-vals={ fmt.Sprintf("{\"account_type\": \"%s\"}", user.AccountType) } hx-include="closest div" hx-indicator={ "#load-user-" + user.UserId } hx-on::before-request="CloseParentModal(event);" hx-target="#message" hx-swap="outerHTML">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}

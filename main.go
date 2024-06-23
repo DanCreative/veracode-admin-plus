@@ -14,6 +14,7 @@ import (
 
 	"github.com/DanCreative/veracode-admin-plus/admin"
 	"github.com/DanCreative/veracode-admin-plus/admin/backend"
+	"github.com/DanCreative/veracode-admin-plus/admin/demo"
 	"github.com/DanCreative/veracode-admin-plus/config"
 	"github.com/go-chi/chi/v5"
 )
@@ -28,17 +29,32 @@ func main() {
 	// Config
 	homeDir, err := os.UserHomeDir()
 	check(err)
-
 	appService := config.NewApplicationConfigService(path.Join(homeDir, ".veracode"))
 	appService.SetClient()
 
-	// Repos
-	veraRepo := backend.NewBasicBackendRepository(appService.GetClient)
-	roleRepo := backend.NewRoleRepository(appService.GetClient)
-	teamRepo := backend.NewTeamRepository(appService.GetClient)
-
 	// Services
-	userService := admin.NewUserService(veraRepo, roleRepo, teamRepo)
+	var userService admin.UserService
+
+	// Demo Mode
+	demoDataFolderPath := path.Join(homeDir, ".veracode", "veracode_admin_plus", "data", "demo")
+	var mode string
+
+	if _, err := os.Stat(demoDataFolderPath); err == nil {
+		// Start in demo mode
+		userRepo := demo.NewDemoUserRepository(demoDataFolderPath)
+		roleRepo := demo.NewDemoRoleRepository(demoDataFolderPath)
+		teamRepo := demo.NewDemoTeamRepository(demoDataFolderPath)
+
+		userService = admin.NewUserService(userRepo, roleRepo, teamRepo)
+		mode = "DEMO"
+	} else {
+		userRepo := backend.NewBasicBackendRepository(appService.GetClient)
+		roleRepo := backend.NewRoleRepository(appService.GetClient)
+		teamRepo := backend.NewTeamRepository(appService.GetClient)
+
+		userService = admin.NewUserService(userRepo, roleRepo, teamRepo)
+		mode = "NORMAL"
+	}
 
 	// Handlers
 	userHandler := admin.NewUserHandler(userService)
@@ -57,8 +73,8 @@ func main() {
 	r.Put("/api/rest/settings", settingsHandler.UpdateSettings)
 
 	// File Service
-	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, "assets"))
+
+	filesDir := http.Dir(filepath.Join(homeDir, ".veracode", "veracode_admin_plus", "assets"))
 	FileServer(r, "/assets", filesDir)
 
 	// Start up
@@ -71,7 +87,10 @@ func main() {
 		startPagePath = "/settings"
 	}
 
-	OpenBrowser(fmt.Sprintf("http://localhost:%d%s", listener.Addr().(*net.TCPAddr).Port, startPagePath))
+	homeURL := fmt.Sprintf("http://localhost:%d%s", listener.Addr().(*net.TCPAddr).Port, startPagePath)
+	fmt.Printf("Successfully started application in %s mode. Navigate to: %s\n", mode, homeURL)
+
+	OpenBrowser(homeURL)
 	log.Fatal(http.Serve(listener, r))
 }
 

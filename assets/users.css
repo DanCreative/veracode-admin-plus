@@ -224,3 +224,7 @@ select:invalid {
 .grid-paging-summary-panel {
     flex-grow: 3;
 }
+
+.scan-type-list {
+    list-style: none;
+}

@@ -4,7 +4,6 @@ import "context"
 
 type IdentityRepository interface {
 	SearchAggregatedUsers(ctx context.Context, options SearchUserOptions) ([]User, PageMeta, error)
-	BulkUpdateUsers(ctx context.Context, users map[string]User) []error
 	UpdateUser(ctx context.Context, userId string, user User) (User, error)
 }
 

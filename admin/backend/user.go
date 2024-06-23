@@ -102,46 +102,6 @@ func (br *BackendRepository) SearchAggregatedUsers(ctx context.Context, options 
 		resp.Links.Self.HrefURL), finalErr
 }
 
-// BulkUpdateUsers updates multiple users async
-func (br *BackendRepository) BulkUpdateUsers(ctx context.Context, users map[string]admin.User) []error {
-	client, err := br.getClient()
-	if err != nil {
-		return []error{err}
-	}
-
-	chError := make(chan error, len(users))
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-
-	for k, v := range users {
-		wg.Add(1)
-		go func(userId string, user admin.User, ch chan error) {
-			vUser := userToVeracode(user, userId)
-			p := true
-			_, _, err := client.Identity.UpdateUser(ctx, vUser, veracode.UpdateOptions{Partial: &p})
-
-			ch <- err
-			wg.Done()
-
-		}(k, v, chError)
-	}
-	go func() {
-		wg.Wait()
-		close(chError)
-	}()
-
-	var errors []error
-
-	for err := range chError {
-		if err != nil {
-			mu.Lock()
-			errors = append(errors, err)
-			mu.Unlock()
-		}
-	}
-	return errors
-}
-
 func (br *BackendRepository) UpdateUser(ctx context.Context, userId string, user admin.User) (admin.User, error) {
 	client, err := br.getClient()
 	if err != nil {

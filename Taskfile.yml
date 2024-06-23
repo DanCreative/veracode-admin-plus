@@ -1,7 +1,32 @@
 version: "3"
 
+# NOTES:
+# - Currently only supports building application from Windows.
+
 tasks:
   run:
     cmds:
       - templ generate
       - go run .
+
+  build:
+    # Build will build the application for specified platform/architecture, then bundle it for release.
+    platforms: [windows]
+    cmds:
+      - templ generate
+      - go build -o "$UserProfile\Downloads\veracode_admin_plus_{{.GOOS}}-{{.GOARCH}}_{{.VERSION}}\veracode_admin_plus\bin\Veracode_Admin_Plus.exe"
+
+      #Ignoring Robocopy errors. Manually check that output is correct.
+      - robocopy /S assets $UserProfile/Downloads/veracode_admin_plus_{{.GOOS}}-{{.GOARCH}}_{{.VERSION}}/veracode_admin_plus/assets/ || true
+      - robocopy /S data $UserProfile/Downloads/veracode_admin_plus_{{.GOOS}}-{{.GOARCH}}_{{.VERSION}}/data || true
+
+      - tar.exe -acf $UserProfile/Downloads/veracode_admin_plus_{{.GOOS}}-{{.GOARCH}}_{{.VERSION}}.zip -C $UserProfile/Downloads/veracode_admin_plus_{{.GOOS}}-{{.GOARCH}}_{{.VERSION}} veracode_admin_plus data
+      #FIXME: There is an issue with TaskFile not running any cmd commands. Therefore, I can't remove the folder after it has been zipped. This is a low priority.
+
+    vars:
+      GOOS:
+        sh: go env GOOS
+      GOARCH:
+        sh: go env GOARCH
+      VERSION:
+        sh: git describe --tags --abbrev=0
